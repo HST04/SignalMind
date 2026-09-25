@@ -101,10 +101,8 @@ class DiscoverRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse, tags=["Web Pages"])
 def serve_landing_page():
-    """Serves the polished SignalMind Landing Page."""
-    landing_path = os.path.join(BASE_DIR, "landing.html")
-    if not os.path.exists(landing_path):
-        landing_path = os.path.join(BASE_DIR, "stitch_landing_page.html")
+    """Serves the primary SignalMind 3D Scrollytelling Landing Page."""
+    landing_path = os.path.join(BASE_DIR, "index.html")
     with open(landing_path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 

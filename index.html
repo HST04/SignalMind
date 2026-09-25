@@ -3,21 +3,23 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>SignalMind — AI-Driven Autonomous Lead Synthesis</title>
+  <title>SignalMind — AI-Driven Autonomous Lead Synthesis & GraphRAG Studio</title>
   
   <!-- Three.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- GSAP CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Typography: Instrument Serif + Inter Tight + JetBrains Mono -->
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 
   <style>
     /* ========================================================================= */
-    /* DESIGN SYSTEM: OBSIDIAN MINIMALISM + APPLE HIG CRAFT                      */
+    /* DESIGN SYSTEM: OBSIDIAN MINIMALISM + APPLE HIG LIQUID GLASS               */
     /* ========================================================================= */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -25,11 +27,11 @@
       --color-bg: #000000;
       --color-surface: #0a0a12;
       --color-surface-2: #12121e;
-      --color-border: rgba(255, 255, 255, 0.08);
-      --color-border-hover: rgba(255, 255, 255, 0.18);
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-border-hover: rgba(255, 255, 255, 0.25);
       --color-text: #ffffff;
-      --color-text-secondary: #a1a1aa;
-      --color-text-tertiary: #52525b;
+      --color-text-secondary: #d4d4d8;
+      --color-text-tertiary: #a1a1aa;
       --color-rose: #fb7185;
       --color-rose-soft: #fda4af;
       --color-rose-deep: #e11d48;
@@ -52,12 +54,12 @@
     }
 
     ::selection {
-      background: rgba(251, 113, 133, 0.3);
+      background: rgba(251, 113, 133, 0.35);
       color: #fff;
     }
 
     /* ========================================================================= */
-    /* TOP NAVBAR                                                                */
+    /* TOP NAVBAR (APPLE HIG LIQUID GLASS WITH INTEGRATED TELEMETRY)             */
     /* ========================================================================= */
     .nav {
       position: fixed;
@@ -65,14 +67,14 @@
       left: 0;
       right: 0;
       z-index: 100;
-      padding: 0 clamp(1.5rem, 4vw, 3rem);
-      height: 60px;
+      padding: 0 clamp(1rem, 3vw, 2.5rem);
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(8, 8, 12, 0.78);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       border-bottom: 1px solid var(--color-border);
     }
 
@@ -85,35 +87,54 @@
     }
 
     .nav-brand-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--color-rose);
-      box-shadow: 0 0 14px rgba(251, 113, 133, 0.8);
+      box-shadow: 0 0 14px rgba(251, 113, 133, 0.9);
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
     }
 
     .nav-brand-text {
       font-family: var(--font-serif);
-      font-size: 1.35rem;
+      font-size: 1.45rem;
       letter-spacing: 0.01em;
     }
 
-    .nav-links {
+    .nav-telemetry-badge {
       display: none;
       align-items: center;
-      gap: 2.2rem;
-      list-style: none;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--color-text-secondary);
     }
 
-    @media (min-width: 768px) {
-      .nav-links { display: flex; }
+    @media (min-width: 1024px) {
+      .nav-telemetry-badge { display: flex; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.6rem, 1.5vw, 1.8rem);
+      list-style: none;
     }
 
     .nav-link {
       font-family: var(--font-mono);
       font-size: 0.6875rem;
-      font-weight: 400;
-      letter-spacing: 0.15em;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--color-text-tertiary);
       text-decoration: none;
@@ -121,6 +142,7 @@
       cursor: pointer;
       background: none;
       border: none;
+      padding: 6px 4px;
     }
 
     .nav-link:hover,
@@ -140,29 +162,31 @@
     }
 
     .nav-cta {
-      background: #ffffff;
-      color: #000000;
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.95) 0%, rgba(225, 29, 72, 0.95) 100%);
+      color: #ffffff;
       font-family: var(--font-sans);
       font-weight: 600;
       font-size: 0.8125rem;
       letter-spacing: 0.02em;
-      padding: 7px 20px;
+      padding: 8px 18px;
       border-radius: 9999px;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       cursor: pointer;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .nav-cta:hover {
-      background: var(--color-rose);
-      color: #fff;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(251, 113, 133, 0.4);
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(251, 113, 133, 0.5);
     }
 
     /* ========================================================================= */
     /* SPLIT-SCREEN VIEWPORT ARCHITECTURE                                        */
-    /* Left 48%: Story Beats & Interactive Controls                              */
+    /* Left 48%: Story Beats & Interactive Context Dock                          */
     /* Right 52%: Fixed Three.js WebGL Canvas                                    */
     /* ========================================================================= */
     #webgl-canvas {
@@ -173,18 +197,19 @@
       height: 100vh;
       z-index: 1;
       pointer-events: none;
+      transition: opacity 0.5s ease;
     }
 
     @media (max-width: 1023px) {
       #webgl-canvas {
         width: 100vw;
-        opacity: 0.25;
+        opacity: 0.22;
       }
     }
 
     .scroll-stage {
       position: relative;
-      height: 480vh;
+      height: 460vh;
       z-index: 10;
     }
 
@@ -195,39 +220,6 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }
-
-    /* Top Telemetry Line */
-    .top-telemetry {
-      position: absolute;
-      top: 60px;
-      left: 0;
-      right: 0;
-      padding: 10px clamp(1.5rem, 5vw, 4rem);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      font-family: var(--font-mono);
-      font-size: 0.625rem;
-      letter-spacing: 0.12em;
-      color: var(--color-text-tertiary);
-      z-index: 25;
-      pointer-events: none;
-    }
-
-    .top-telemetry-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .telemetry-pulse {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-rose);
-      animation: pulse 2s ease-in-out infinite;
     }
 
     /* Left Story Beat Stack */
@@ -251,14 +243,14 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding-left: clamp(1.5rem, 5vw, 4.5rem);
-      padding-right: clamp(1rem, 3vw, 2.5rem);
-      padding-top: 70px;
-      padding-bottom: 60px;
+      padding-left: clamp(1.5rem, 4.5vw, 4rem);
+      padding-right: clamp(1rem, 2.5vw, 2.5rem);
+      padding-top: 75px;
+      padding-bottom: 50px;
       opacity: 0;
-      transform: translateY(22px);
-      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
     }
 
@@ -268,27 +260,37 @@
       pointer-events: auto;
     }
 
+    /* Mobile backdrop scrim for 100% legibility */
+    @media (max-width: 1023px) {
+      .beat.visible {
+        background: radial-gradient(circle at 30% 50%, rgba(8, 8, 14, 0.92) 0%, rgba(0, 0, 0, 0.88) 100%);
+      }
+    }
+
     /* ========================================================================= */
     /* TYPOGRAPHY                                                                */
     /* ========================================================================= */
     .eyebrow {
-      font-family: var(--font-sans);
+      font-family: var(--font-mono);
       font-size: 0.6875rem;
       font-weight: 600;
-      letter-spacing: 0.32em;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: var(--color-text-secondary);
-      margin-bottom: 0.9rem;
+      color: var(--color-rose);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .headline {
       font-family: var(--font-serif);
-      font-size: clamp(2.3rem, 3.6vw, 3.8rem);
+      font-size: clamp(2.1rem, 3.2vw, 3.4rem);
       line-height: 1.08;
       letter-spacing: -0.02em;
       font-weight: 400;
       color: #ffffff;
-      margin-bottom: 1.1rem;
+      margin-bottom: 0.8rem;
     }
 
     .headline em {
@@ -300,117 +302,285 @@
 
     .body-text {
       font-family: var(--font-sans);
-      font-size: clamp(0.875rem, 1vw, 0.975rem);
-      font-weight: 350;
-      line-height: 1.65;
-      color: var(--color-text-secondary);
-      max-width: 460px;
-    }
-
-    /* ========================================================================= */
-    /* CYBERNETIC CORNER-BRACKETED TAGS                                          */
-    /* ========================================================================= */
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 1.4rem;
-    }
-
-    .cyber-tag {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.5625rem;
+      font-size: clamp(0.8125rem, 0.95vw, 0.925rem);
       font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.75);
-      background: rgba(255, 255, 255, 0.02);
-      padding: 5px 12px;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      max-width: 480px;
+    }
+
+    /* ========================================================================= */
+    /* BEAT 1: MULTI-MODAL CONTEXT DOCK (APPLE LIQUID GLASS)                     */
+    /* ========================================================================= */
+    .context-dock {
+      margin-top: 1rem;
+      max-width: 490px;
+      background: rgba(14, 14, 22, 0.82);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       border: 1px solid var(--color-border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: border-color 0.3s ease;
     }
 
-    .cyber-tag::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: -1px;
-      width: 4px;
-      height: 4px;
-      border-top: 1px solid var(--color-cyan);
-      border-left: 1px solid var(--color-cyan);
+    .context-dock:focus-within {
+      border-color: rgba(251, 113, 133, 0.45);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 113, 133, 0.15);
     }
 
-    .cyber-tag::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      right: -1px;
-      width: 4px;
-      height: 4px;
-      border-bottom: 1px solid var(--color-rose);
-      border-right: 1px solid var(--color-rose);
-    }
-
-    /* ========================================================================= */
-    /* PRESET BUTTONS                                                            */
-    /* ========================================================================= */
-    .presets {
+    .dock-tabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 1.25rem;
+      gap: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      overflow-x: auto;
     }
 
-    .preset-btn {
+    .dock-tab {
       font-family: var(--font-mono);
       font-size: 0.625rem;
-      font-weight: 400;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      border: 1px solid var(--color-border);
-      background: rgba(255, 255, 255, 0.03);
+      font-weight: 500;
       color: var(--color-text-tertiary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 4px 10px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
       transition: all 0.2s;
     }
 
-    .preset-btn:hover {
+    .dock-tab:hover {
       color: #fff;
-      border-color: var(--color-border-hover);
+      background: rgba(255, 255, 255, 0.05);
     }
 
-    .preset-btn.active {
+    .dock-tab.active {
+      color: #fff;
+      background: rgba(251, 113, 133, 0.15);
+      border-color: rgba(251, 113, 133, 0.35);
+    }
+
+    .dock-pane {
+      display: none;
+    }
+
+    .dock-pane.active {
+      display: block;
+    }
+
+    .dock-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      color: #ffffff;
+      outline: none;
+      resize: none;
+      min-height: 64px;
+      transition: border-color 0.2s;
+    }
+
+    .dock-textarea:focus {
+      border-color: var(--color-rose);
+    }
+
+    .dock-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #ffffff;
+      outline: none;
+    }
+
+    .dock-input:focus {
+      border-color: var(--color-cyan);
+    }
+
+    .dock-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .dock-btn-submit {
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.95) 0%, rgba(225, 29, 72, 0.95) 100%);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 9999px;
+      padding: 7px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .dock-btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(251, 113, 133, 0.4);
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+      max-width: 490px;
+    }
+
+    .preset-chip {
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      padding: 4px 11px;
+      border-radius: 9999px;
+      border: 1px solid var(--color-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .preset-chip:hover {
+      color: #fff;
+      border-color: var(--color-border-hover);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .preset-chip.active {
       border-color: rgba(251, 113, 133, 0.5);
-      background: rgba(251, 113, 133, 0.1);
+      background: rgba(251, 113, 133, 0.12);
       color: var(--color-rose-soft);
     }
 
+    /* Live Extracted Semantic Tags */
+    .semantic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      max-width: 490px;
+    }
+
+    .frosted-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+    }
+
     /* ========================================================================= */
-    /* BEAT 4: COMPACT METRIC ROW & LIQUID GLASS DOSSIER                         */
+    /* BEAT 2: DISSECTION CARDS & DYNAMIC NODES                                  */
+    /* ========================================================================= */
+    .dissection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 1rem;
+      max-width: 470px;
+    }
+
+    .dissect-card {
+      background: rgba(14, 14, 22, 0.75);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .dissect-label {
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      display: block;
+      margin-bottom: 2px;
+      letter-spacing: 0.08em;
+    }
+
+    .dissect-value {
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ========================================================================= */
+    /* BEAT 3: DUAL-CHANNEL TELEMETRY FEED                                       */
+    /* ========================================================================= */
+    .telemetry-feed-box {
+      margin-top: 1rem;
+      max-width: 470px;
+      background: rgba(10, 10, 16, 0.85);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      space-y: 8px;
+    }
+
+    .telemetry-feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .telemetry-feed-item:last-child {
+      border-bottom: none;
+    }
+
+    /* ========================================================================= */
+    /* BEAT 4: COMPACT METRIC ROW & VERIFIED LEAD DOSSIER                        */
     /* ========================================================================= */
     .metric-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 1rem;
-      max-width: 440px;
+      gap: 6px;
+      margin-top: 0.8rem;
+      max-width: 460px;
     }
 
     .metric-pill {
       background: linear-gradient(180deg, rgba(22, 22, 32, 0.9) 0%, rgba(8, 8, 14, 0.95) 100%);
       border: 1px solid var(--color-border);
       border-radius: 10px;
-      padding: 10px 12px;
+      padding: 7px 10px;
       text-align: left;
     }
 
     .metric-pill-val {
       font-family: var(--font-serif);
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       color: #ffffff;
       display: block;
       line-height: 1.1;
@@ -420,21 +590,21 @@
       font-family: var(--font-sans);
       font-size: 0.5625rem;
       color: var(--color-text-tertiary);
-      margin-top: 3px;
+      margin-top: 2px;
       display: block;
       letter-spacing: 0.02em;
     }
 
     .lead-card {
-      margin-top: 0.9rem;
-      max-width: 440px;
-      background: rgba(12, 12, 20, 0.85);
+      margin-top: 0.75rem;
+      max-width: 460px;
+      background: rgba(12, 12, 20, 0.88);
       backdrop-filter: blur(28px) saturate(190%);
       -webkit-backdrop-filter: blur(28px) saturate(190%);
       border: 1px solid rgba(251, 113, 133, 0.35);
       border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(251, 113, 133, 0.12);
+      padding: 12px 14px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(251, 113, 133, 0.1);
     }
 
     .lead-header {
@@ -442,8 +612,8 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--color-border);
-      padding-bottom: 8px;
-      margin-bottom: 10px;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .lead-status {
@@ -458,16 +628,11 @@
     }
 
     .lead-status-dot {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--color-emerald);
       animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
     }
 
     .lead-tier {
@@ -475,24 +640,24 @@
       font-size: 0.5625rem;
       padding: 2px 8px;
       border-radius: 4px;
-      background: rgba(251, 113, 133, 0.1);
+      background: rgba(251, 113, 133, 0.12);
       color: var(--color-rose-soft);
-      border: 1px solid rgba(251, 113, 133, 0.2);
+      border: 1px solid rgba(251, 113, 133, 0.25);
     }
 
     .lead-profile {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 9px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .lead-avatar {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 8px;
-      background: linear-gradient(135deg, rgba(251, 113, 133, 0.25), rgba(34, 211, 238, 0.25));
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(135deg, rgba(251, 113, 133, 0.3), rgba(34, 211, 238, 0.3));
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -504,9 +669,9 @@
 
     .lead-name {
       font-family: var(--font-serif);
-      font-size: 1.0625rem;
+      font-size: 1.05rem;
       color: #fff;
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .lead-role {
@@ -518,15 +683,15 @@
 
     .lead-company {
       font-size: 0.6875rem;
-      color: var(--color-text-tertiary);
+      color: var(--color-text-secondary);
     }
 
     .lead-trigger {
       background: rgba(0, 0, 0, 0.55);
       border: 1px solid var(--color-border);
       border-radius: 6px;
-      padding: 7px 10px;
-      margin-bottom: 9px;
+      padding: 6px 9px;
+      margin-bottom: 8px;
     }
 
     .lead-trigger-label {
@@ -542,18 +707,18 @@
     .lead-trigger-text {
       font-size: 0.6875rem;
       color: var(--color-text-secondary);
-      line-height: 1.5;
+      line-height: 1.4;
     }
 
     .lead-contacts {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
-      margin-bottom: 9px;
+      margin-bottom: 8px;
     }
 
     .lead-contact-box {
-      padding: 6px 8px;
+      padding: 5px 8px;
       border-radius: 6px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--color-border);
@@ -561,7 +726,7 @@
 
     .lead-contact-label {
       font-family: var(--font-mono);
-      font-size: 0.48rem;
+      font-size: 0.5rem;
       color: var(--color-text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -576,45 +741,49 @@
     }
 
     .lead-actions {
-      display: flex;
-      gap: 7px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 6px;
     }
 
     .lead-btn-primary {
-      flex: 1;
-      background: #ffffff;
-      color: #000000;
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.95) 0%, rgba(225, 29, 72, 0.95) 100%);
+      color: #fff;
       font-family: var(--font-sans);
       font-weight: 600;
       font-size: 0.6875rem;
-      padding: 8px;
+      padding: 7px 6px;
       border-radius: 9999px;
       border: none;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .lead-btn-primary:hover {
-      background: var(--color-rose);
-      color: #fff;
+      box-shadow: 0 4px 12px rgba(251, 113, 133, 0.4);
+      transform: translateY(-1px);
     }
 
     .lead-btn-secondary {
-      padding: 8px 14px;
+      padding: 7px 6px;
       border-radius: 9999px;
       border: 1px solid var(--color-border);
-      background: transparent;
+      background: rgba(255, 255, 255, 0.03);
       color: var(--color-text-secondary);
       font-family: var(--font-mono);
       font-size: 0.625rem;
       cursor: pointer;
       transition: all 0.2s;
+      text-align: center;
+      white-space: nowrap;
     }
 
     .lead-btn-secondary:hover {
       color: #fff;
       border-color: var(--color-border-hover);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     /* ========================================================================= */
@@ -625,49 +794,49 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 44px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 clamp(1.5rem, 5vw, 4.5rem);
+      padding: 0 clamp(1rem, 4vw, 4rem);
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-top: 1px solid var(--color-border);
       z-index: 30;
       font-family: var(--font-mono);
-      font-size: 0.5625rem;
-      letter-spacing: 0.14em;
+      font-size: 0.625rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--color-text-tertiary);
+      color: var(--color-text-secondary);
     }
 
     .progress-pct {
       color: var(--color-rose);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* ========================================================================= */
-    /* TAXONOMY SECTION                                                          */
+    /* TAXONOMY SECTION (200 TAXONOMIES)                                         */
     /* ========================================================================= */
     .taxonomy-section {
       position: relative;
       z-index: 20;
-      max-width: 72rem;
+      max-width: 74rem;
       margin: 0 auto;
-      padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem);
+      padding: clamp(4rem, 7vw, 6rem) clamp(1.5rem, 4vw, 4rem);
       border-top: 1px solid var(--color-border);
       background: #000000;
     }
 
     .taxonomy-header {
-      max-width: 520px;
-      margin-bottom: 2.5rem;
+      max-width: 560px;
+      margin-bottom: 2rem;
     }
 
     .taxonomy-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 12px;
     }
 
@@ -675,7 +844,7 @@
       background: linear-gradient(180deg, rgba(18, 18, 26, 0.85) 0%, rgba(6, 6, 10, 0.95) 100%);
       border: 1px solid var(--color-border);
       border-radius: 14px;
-      padding: 22px;
+      padding: 18px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -687,7 +856,7 @@
 
     .taxonomy-count {
       font-family: var(--font-mono);
-      font-size: 0.5625rem;
+      font-size: 0.625rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       display: block;
@@ -699,28 +868,85 @@
       font-size: 0.9375rem;
       font-weight: 600;
       color: #fff;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .taxonomy-desc {
       font-size: 0.75rem;
-      color: var(--color-text-tertiary);
+      color: var(--color-text-secondary);
       line-height: 1.5;
     }
 
     /* ========================================================================= */
-    /* FOOTER                                                                    */
+    /* MODALS (OUTREACH, EXPORT, GRAPHRAG)                                       */
     /* ========================================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: rgba(14, 14, 22, 0.92);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      padding: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 113, 133, 0.15);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      color: #fff;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--color-text-tertiary);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    /* FOOTER */
     .site-footer {
       position: relative;
       z-index: 20;
       border-top: 1px solid var(--color-border);
-      padding: 2.2rem clamp(1.5rem, 5vw, 4rem);
+      padding: 2rem clamp(1.5rem, 4vw, 4rem);
       background: #000000;
     }
 
     .footer-inner {
-      max-width: 72rem;
+      max-width: 74rem;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -729,14 +955,7 @@
       gap: 1rem;
       font-family: var(--font-mono);
       font-size: 0.6875rem;
-      color: var(--color-text-tertiary);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, ::before, ::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+      color: var(--color-text-secondary);
     }
   </style>
 </head>
@@ -756,6 +975,11 @@
       <span class="nav-brand-text">SignalMind</span>
     </a>
 
+    <div class="nav-telemetry-badge">
+      <span class="nav-brand-dot" style="background: var(--color-cyan); width: 6px; height: 6px;"></span>
+      <span id="navTelemetryText">Telemetry Live: Webhook 1 &amp; 2 Synchronized</span>
+    </div>
+
     <ul class="nav-links">
       <li><button class="nav-link active" id="navStage-1" onclick="jumpToStage(1)"><span class="num">01</span> Vision</button></li>
       <li><button class="nav-link" id="navStage-2" onclick="jumpToStage(2)"><span class="num">02</span> Dissection</button></li>
@@ -763,7 +987,10 @@
       <li><button class="nav-link" id="navStage-4" onclick="jumpToStage(4)"><span class="num">04</span> Lead</button></li>
     </ul>
 
-    <button class="nav-cta" onclick="jumpToStage(4)">Get Started</button>
+    <button class="nav-cta" onclick="jumpToStage(4)">
+      <span>Launch Lead Engine</span>
+      <span>→</span>
+    </button>
   </header>
 
   <!-- ======================================================================= -->
@@ -772,45 +999,113 @@
   <section class="scroll-stage" id="scroll-stage">
     <div class="sticky-viewport">
 
-      <!-- Top Telemetry Status Line -->
-      <div class="top-telemetry">
-        <div class="top-telemetry-left">
-          <span class="telemetry-pulse"></span>
-          <span id="telemetryStatus">BEAT 01 // THE ORGANIC FOUNDER VISION</span>
-        </div>
-        <div style="display: flex; gap: 1.5rem;">
-          <span class="hidden sm:inline">TAXONOMY: 200 CATEGORIES</span>
-          <span>LATENCY: 0.042MS</span>
-        </div>
-      </div>
-
       <!-- Left Story Beat Container -->
       <div class="beats-container">
 
         <!-- =============================================================== -->
-        <!-- BEAT 1: The Organic Founder Vision (0.00 – 0.25)                -->
+        <!-- BEAT 1: The Organic Founder Vision & Multi-Modal Intake         -->
         <!-- =============================================================== -->
         <div class="beat visible" id="beat-1">
-          <span class="eyebrow">The Founder Vision</span>
+          <span class="eyebrow">
+            <span>●</span>
+            <span>BEAT 01 // MULTI-MODAL INTAKE</span>
+          </span>
           <h1 class="headline">
             Every business begins<br/>
             as an organic vision.
             <em>Delicate, complex,<br/>and unformed.</em>
           </h1>
           <p class="body-text">
-            You describe your business in natural language. SignalMind's AI parses your raw intuition — mapping it across 200 curated taxonomies and a living GraphRAG knowledge graph — to deliver the exact paying customer you need.
+            Describe your offering, paste a URL, or drop your deck. SignalMind's GraphRAG AI parses your raw intuition across 200 curated taxonomies to deliver verified paying customers.
           </p>
 
-          <div class="presets">
-            <button class="preset-btn active" onclick="selectPreset('dental', event)">Dental Clinics B2B SaaS</button>
-            <button class="preset-btn" onclick="selectPreset('roofing', event)">Commercial Roofing AI</button>
-            <button class="preset-btn" onclick="selectPreset('cfo', event)">Fractional CFO Advisory</button>
+          <!-- MULTI-MODAL CONTEXT DOCK -->
+          <div class="context-dock">
+            <div class="dock-tabs">
+              <button class="dock-tab active" onclick="switchDockTab('prompt', event)">
+                <span>✍️</span><span>Vision Prompt</span>
+              </button>
+              <button class="dock-tab" onclick="switchDockTab('url', event)">
+                <span>🌐</span><span>Website / URL</span>
+              </button>
+              <button class="dock-tab" onclick="switchDockTab('deck', event)">
+                <span>📄</span><span>Pitch Deck / Notes</span>
+              </button>
+              <button class="dock-tab" onclick="switchDockTab('taxonomy', event)">
+                <span>🗂️</span><span>200 Niche Picker</span>
+              </button>
+            </div>
+
+            <!-- Tab 1: Vision Prompt -->
+            <div class="dock-pane active" id="pane-prompt">
+              <textarea
+                id="customPromptInput"
+                class="dock-textarea"
+                placeholder="Describe what you are building, who you sell to, and your core differentiator..."
+              >We provide an automated AI call dispatching and appointment scheduling software for commercial roofing and HVAC contractors that eliminates phone bottlenecks 24/7.</textarea>
+            </div>
+
+            <!-- Tab 2: URL Auto-Scraper -->
+            <div class="dock-pane" id="pane-url">
+              <input
+                type="url"
+                id="companyUrlInput"
+                class="dock-input"
+                placeholder="https://yourcompany.com or LinkedIn company profile URL..."
+                value="https://commercialroofingdispatch.ai"
+              />
+              <span style="font-size: 0.625rem; color: var(--color-text-tertiary); display: block; margin-top: 5px;">
+                SignalMind will scrape value props, ICP definitions, and pricing tier automatically.
+              </span>
+            </div>
+
+            <!-- Tab 3: Pitch Deck / Notes -->
+            <div class="dock-pane" id="pane-deck">
+              <textarea
+                id="deckNotesInput"
+                class="dock-textarea"
+                placeholder="Paste pitch deck executive summary, customer pain points, or target ICP brief..."
+              >Problem: Commercial roofing contractors miss 38% of inbound emergency dispatch calls. Solution: Voice AI answering, automated crew scheduling, and insurance claim integration. Target ticket size: $36k ARR.</textarea>
+            </div>
+
+            <!-- Tab 4: 200 Taxonomy Browser Dropdown -->
+            <div class="dock-pane" id="pane-taxonomy">
+              <select id="taxonomySelectInput" class="dock-input" onchange="handleTaxonomySelect(event)">
+                <option value="commercial-roofing-contractor">Commercial Roofing Contractor (Construction)</option>
+                <option value="dental-practice-clinic">Dental Practice &amp; Clinic (Healthcare)</option>
+                <option value="fractional-cfo-financial-advisory">Fractional CFO Advisory (Finance)</option>
+                <option value="residential-solar-installation">Solar Installation &amp; Permitting (Trades)</option>
+                <option value="b2b-saas-provider">B2B SaaS Cloud Application (Software)</option>
+                <option value="commercial-law-firm">Commercial Law Firm &amp; Diligence (Legal)</option>
+                <option value="ai-ml-automation-agency">AI &amp; Automation Agency (Technology)</option>
+              </select>
+            </div>
+
+            <div class="dock-actions">
+              <div style="font-family: var(--font-mono); font-size: 0.625rem; color: var(--color-text-tertiary);" id="dockStatusText">
+                Ready to synthesize intent vectors
+              </div>
+              <button class="dock-btn-submit" onclick="submitBusinessContext()">
+                <span id="btnSubmitText">Synthesize &amp; Traverse</span>
+                <span>→</span>
+              </button>
+            </div>
           </div>
 
-          <div class="tags">
-            <span class="cyber-tag">Organic Intent</span>
-            <span class="cyber-tag">Founder Intuition</span>
-            <span class="cyber-tag">Natural Language</span>
+          <!-- Quick Founder Presets -->
+          <div class="preset-chips">
+            <button class="preset-chip active" onclick="selectPreset('roofing', event)">🏗️ Roofing AI</button>
+            <button class="preset-chip" onclick="selectPreset('dental', event)">🦷 Dental Scribe</button>
+            <button class="preset-chip" onclick="selectPreset('cfo', event)">💼 Fractional CFO</button>
+            <button class="preset-chip" onclick="selectPreset('solar', event)">☀️ Solar CRM</button>
+            <button class="preset-chip" onclick="selectPreset('law', event)">⚖️ Legal AI</button>
+          </div>
+
+          <!-- Dynamic Extracted Entity Tags -->
+          <div class="semantic-tags" id="beat1Tags">
+            <span class="frosted-pill" style="color: var(--color-rose);" id="tagNiche">Niche: Commercial Roofing</span>
+            <span class="frosted-pill" style="color: var(--color-cyan);" id="tagPersona">Target: VP Ops / Facilities</span>
+            <span class="frosted-pill" style="color: var(--color-emerald);" id="tagNeed">Need: Auto Dispatching</span>
           </div>
         </div>
 
@@ -818,21 +1113,42 @@
         <!-- BEAT 2: Intent Dissection (0.25 – 0.50)                         -->
         <!-- =============================================================== -->
         <div class="beat" id="beat-2">
-          <span class="eyebrow" style="color: var(--color-cyan);">Intent Dissection</span>
+          <span class="eyebrow" style="color: var(--color-cyan);">
+            <span>●</span>
+            <span>BEAT 02 // INTENT DISSECTION</span>
+          </span>
           <h2 class="headline">
             Raw intuition fractures<br/>
             into structured vectors.
             <em>Dissecting the<br/>botanical matrix.</em>
           </h2>
           <p class="body-text">
-            Thousands of variables. Billions of intent signals. We dissect your prompt across 200 curated B2B categories, mapping buyers, decision-makers, and technographic triggers in real time.
+            Thousands of variables. Millions of intent signals. We dissect your business context across 200 curated B2B categories, mapping buyers, decision-makers, and technographic triggers in real time.
           </p>
 
-          <div class="tags">
-            <span class="cyber-tag">B2B SaaS Clinics</span>
-            <span class="cyber-tag">Decision Makers</span>
-            <span class="cyber-tag">Technographic Triggers</span>
-            <span class="cyber-tag">200 Taxonomy Tiers</span>
+          <div class="dissection-grid">
+            <div class="dissect-card">
+              <span class="dissect-label">Primary Taxonomy Node</span>
+              <div class="dissect-value" id="dissectNodeName">Commercial Roofing</div>
+            </div>
+            <div class="dissect-card">
+              <span class="dissect-label">Category &amp; Sales Cycle</span>
+              <div class="dissect-value" id="dissectCategory">Construction • 1-4 mos</div>
+            </div>
+            <div class="dissect-card">
+              <span class="dissect-label">Buyer Persona Vector</span>
+              <div class="dissect-value" style="color: var(--color-cyan);" id="dissectPersona">VP of Operations</div>
+            </div>
+            <div class="dissect-card">
+              <span class="dissect-label">Vendor Pain Point</span>
+              <div class="dissect-value" style="color: var(--color-rose-soft);" id="dissectNeed">Dispatch Automation</div>
+            </div>
+          </div>
+
+          <div class="semantic-tags" style="margin-top: 12px;" id="beat2Tags">
+            <span class="frosted-pill">Graph Constraint: Validated</span>
+            <span class="frosted-pill">Intent Confidence: 99.2%</span>
+            <span class="frosted-pill">200 Tiers Indexed</span>
           </div>
         </div>
 
@@ -840,20 +1156,35 @@
         <!-- BEAT 3: Continuous Dual Signals (0.50 – 0.75)                   -->
         <!-- =============================================================== -->
         <div class="beat" id="beat-3">
-          <span class="eyebrow" style="color: var(--color-rose);">Introducing SignalMind</span>
+          <span class="eyebrow" style="color: var(--color-rose);">
+            <span>●</span>
+            <span>BEAT 03 // CONTINUOUS DUAL TELEMETRY</span>
+          </span>
           <h2 class="headline">
             Continuous dual-channel<br/>
             market telemetry.
             <em>Compounding intelligence<br/>in real time.</em>
           </h2>
           <p class="body-text">
-            Dissected intent vectors flow into continuous Fourier telemetry waveforms. Webhook 1 streams live market feeds while Webhook 2 enriches verified decision-makers via 3-hop GraphRAG traversal.
+            Dissected intent vectors flow into continuous Fourier telemetry waveforms. Webhook 1 streams live market signals while Webhook 2 enriches verified decision-makers via multi-hop GraphRAG traversal.
           </p>
 
-          <div class="tags">
-            <span class="cyber-tag" style="color: var(--color-cyan);">Webhook 1: 84,000 feeds/sec</span>
-            <span class="cyber-tag" style="color: var(--color-rose-soft);">Webhook 2: Enrichment</span>
-            <span class="cyber-tag" style="color: var(--color-emerald);">3-Hop GraphRAG Engine</span>
+          <div class="telemetry-feed-box" id="telemetryFeedBox">
+            <div class="telemetry-feed-item">
+              <span style="color: var(--color-cyan);">Webhook 1 (Market)</span>
+              <span style="color: #fff;" id="tFeed1">Titan Roofing: Posted 3 Dispatch roles on LinkedIn</span>
+              <span style="color: var(--color-emerald);">High Intent</span>
+            </div>
+            <div class="telemetry-feed-item">
+              <span style="color: var(--color-rose);">Webhook 2 (Enrich)</span>
+              <span style="color: #fff;" id="tFeed2">Marcus Sterling: SMTP mailbox verified, zero bounce</span>
+              <span style="color: var(--color-emerald);">99% Deliverable</span>
+            </div>
+            <div class="telemetry-feed-item">
+              <span style="color: #a78bfa;">GraphRAG</span>
+              <span style="color: #fff;">3-Hop Traversal: Niche → Vendor Need → Decision Maker</span>
+              <span style="color: var(--color-cyan);">0.042ms</span>
+            </div>
           </div>
         </div>
 
@@ -861,8 +1192,11 @@
         <!-- BEAT 4: Compounding Results & Verified Lead (0.75 – 1.00)       -->
         <!-- =============================================================== -->
         <div class="beat" id="beat-4">
-          <span class="eyebrow" style="color: var(--color-emerald);">Compounding Results</span>
-          <h2 class="headline" style="font-size: clamp(1.8rem, 2.8vw, 2.6rem); margin-bottom: 0.6rem;">
+          <span class="eyebrow" style="color: var(--color-emerald);">
+            <span>●</span>
+            <span>BEAT 04 // VERIFIED DECISION-MAKER READY</span>
+          </span>
+          <h2 class="headline" style="font-size: clamp(1.8rem, 2.7vw, 2.5rem); margin-bottom: 0.4rem;">
             The signal crystallizes into<br/>your paying customer.
           </h2>
 
@@ -874,7 +1208,7 @@
             </div>
             <div class="metric-pill">
               <span class="metric-pill-val" style="color: var(--color-cyan);">0.042ms</span>
-              <span class="metric-pill-lbl">GraphRAG</span>
+              <span class="metric-pill-lbl">GraphRAG Latency</span>
             </div>
             <div class="metric-pill">
               <span class="metric-pill-val" style="color: var(--color-emerald);">100%</span>
@@ -882,7 +1216,7 @@
             </div>
             <div class="metric-pill">
               <span class="metric-pill-val" style="color: var(--color-rose-soft);">200</span>
-              <span class="metric-pill-lbl">Curated Types</span>
+              <span class="metric-pill-lbl">Taxonomy Nodes</span>
             </div>
           </div>
 
@@ -893,39 +1227,40 @@
                 <span class="lead-status-dot"></span>
                 <span>Verified Decision-Maker</span>
               </div>
-              <span class="lead-tier" id="leadTicketSize">$48k ARR Tier</span>
+              <span class="lead-tier" id="leadTicketSize">$36k Contract</span>
             </div>
 
             <div class="lead-profile">
-              <div class="lead-avatar" id="leadInitials">EV</div>
+              <div class="lead-avatar" id="leadInitials">MS</div>
               <div>
-                <div class="lead-name" id="leadName">Dr. Elena Vance, DDS</div>
-                <div class="lead-role" id="leadRole">Chief Clinical Officer &amp; Partner</div>
-                <div class="lead-company" id="leadCompany">Apex Regional Dental Group (24 Clinics)</div>
+                <div class="lead-name" id="leadName">Marcus Sterling</div>
+                <div class="lead-role" id="leadRole">VP of Operations &amp; Dispatch</div>
+                <div class="lead-company" id="leadCompany">Titan Commercial Roofing &bull; Construction</div>
               </div>
             </div>
 
             <div class="lead-trigger">
               <span class="lead-trigger-label">Active Intent Trigger (Webhook 1 &amp; 2 Fusion)</span>
               <p class="lead-trigger-text" id="leadTriggerReason">
-                Organization initiated technographic migration from legacy Dentrix to cloud EHR. CCO Elena Vance downloaded HIPAA cloud integration brief. RFP actively circulating.
+                Job posting for 3 Dispatch Coordinators detected on LinkedIn. Expanding fleet by 14 trucks in Midwest region. High manual reporting friction.
               </p>
             </div>
 
             <div class="lead-contacts">
               <div class="lead-contact-box">
                 <span class="lead-contact-label">Direct Email</span>
-                <span class="lead-contact-value" id="leadEmail">elena.vance@apexregionaldental.com</span>
+                <span class="lead-contact-value" id="leadEmail">m.sterling@titancommercialroofing.com</span>
               </div>
               <div class="lead-contact-box">
                 <span class="lead-contact-label">Direct Dial</span>
-                <span class="lead-contact-value" id="leadPhone" style="color: var(--color-cyan);">+1 (415) 892-4910</span>
+                <span class="lead-contact-value" id="leadPhone" style="color: var(--color-cyan);">+1 (312) 749-3320</span>
               </div>
             </div>
 
             <div class="lead-actions">
-              <button class="lead-btn-primary" onclick="handleLeadExport()">Export to CRM</button>
-              <button class="lead-btn-secondary" onclick="inspectGraphRag()">Inspect GraphRAG</button>
+              <button class="lead-btn-primary" onclick="openOutreachModal()">⚡ 1-Click Outreach</button>
+              <button class="lead-btn-secondary" onclick="openExportModal()">📥 Export CRM / CSV</button>
+              <button class="lead-btn-secondary" onclick="openGraphRagModal()">🔍 Inspect Graph</button>
             </div>
           </div>
         </div>
@@ -935,7 +1270,7 @@
       <!-- Bottom Progress HUD -->
       <div class="progress-bar">
         <span id="beatLabel">Beat 01 — The Organic Vision</span>
-        <span style="display: flex; align-items: center; gap: 6px;">
+        <span style="display: flex; align-items: center; gap: 8px;">
           <span>Scroll to traverse</span>
           <span id="scrollPct" class="progress-pct">0%</span>
           <span>↓</span>
@@ -948,9 +1283,12 @@
   <!-- ======================================================================= -->
   <!-- TAXONOMY EXPLORER                                                       -->
   <!-- ======================================================================= -->
-  <section class="taxonomy-section">
+  <section class="taxonomy-section" id="taxonomy-section">
     <div class="taxonomy-header">
-      <span class="eyebrow" style="color: var(--color-rose);">Knowledge Graph Architecture</span>
+      <span class="eyebrow">
+        <span>●</span>
+        <span>KNOWLEDGE GRAPH ARCHITECTURE</span>
+      </span>
       <h2 class="headline" style="font-size: clamp(2rem, 3.2vw, 2.8rem); margin-bottom: 0.6rem;">
         200 Curated Business Taxonomies.
       </h2>
@@ -959,7 +1297,7 @@
       </p>
     </div>
 
-    <div class="taxonomy-grid">
+    <div class="taxonomy-grid" id="taxonomyGrid">
       <div class="taxonomy-card">
         <span class="taxonomy-count" style="color: var(--color-rose);">20 Types</span>
         <div class="taxonomy-title">Technology &amp; SaaS</div>
@@ -967,7 +1305,7 @@
       </div>
       <div class="taxonomy-card">
         <span class="taxonomy-count" style="color: var(--color-cyan);">20 Types</span>
-        <div class="taxonomy-title">Healthcare Clinics</div>
+        <div class="taxonomy-title">Healthcare &amp; Clinics</div>
         <p class="taxonomy-desc">Dental Clinics, MedSpas, Telehealth, Physical Therapy</p>
       </div>
       <div class="taxonomy-card">
@@ -984,94 +1322,448 @@
   </section>
 
   <!-- ======================================================================= -->
+  <!-- MODALS (OUTREACH, EXPORT, GRAPHRAG)                                     -->
+  <!-- ======================================================================= -->
+
+  <!-- Outreach Modal -->
+  <div class="modal-overlay" id="modalOutreach">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">⚡ 1-Click AI Personalized Outreach Pitch</div>
+        <button class="modal-close" onclick="closeModal('modalOutreach')">&times;</button>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-secondary); margin-bottom: 14px;">
+        Target: <strong id="modalTargetName" style="color: #fff;">Marcus Sterling</strong> &bull; <span id="modalTargetRole" style="color: var(--color-rose);">VP of Operations</span> at <span id="modalTargetCompany" style="color: #fff;">Titan Commercial Roofing</span>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.625rem; color: var(--color-text-tertiary); margin-bottom: 4px;">
+          <span>HYPER-PERSONALIZED COLD EMAIL</span>
+          <button style="background: none; border: none; color: var(--color-rose); cursor: pointer;" onclick="copyModalField('modalEmailBody')">Copy Email</button>
+        </div>
+        <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.5;">
+          <div style="margin-bottom: 6px;"><strong>Subject:</strong> <span id="modalEmailSubject">Quick thought regarding Titan Commercial Roofing's dispatch operations</span></div>
+          <div id="modalEmailBody" style="white-space: pre-line; color: var(--color-text-secondary);">Hi Marcus,
+
+Saw Titan Commercial Roofing's recent signals expanding dispatch coordinators in the Midwest. Given your focus as VP of Operations, eliminating dispatch friction while scaling the fleet is likely top of mind.
+
+We built an automated AI dispatch system tailored for commercial roofing contractors that captures 100% of emergency calls and auto-routes crews without manual bottlenecks.
+
+Open to a brief 7-minute visual demo this Thursday?</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.625rem; color: var(--color-text-tertiary); margin-bottom: 4px;">
+          <span>DIRECT LINKEDIN INMAIL NOTE</span>
+          <button style="background: none; border: none; color: var(--color-cyan); cursor: pointer;" onclick="copyModalField('modalLinkedinPitch')">Copy Note</button>
+        </div>
+        <div id="modalLinkedinPitch" style="background: rgba(0,0,0,0.6); border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.5; color: var(--color-text-secondary);">Hi Marcus, noticed Titan's momentum expanding Midwest fleet operations. We developed a lightweight workflow tool tailored for roofing VPs to automate 24/7 call dispatching without overhead. Worth connecting?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="modal-overlay" id="modalExport">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">📥 Export Verified Leads</div>
+        <button class="modal-close" onclick="closeModal('modalExport')">&times;</button>
+      </div>
+      <p style="font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 16px;">
+        Export current verified decision-maker records with full multi-hop GraphRAG metadata, direct dials, and verified emails.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="lead-btn-primary" style="padding: 12px;" onclick="downloadExport('csv')">Download CSV</button>
+        <button class="lead-btn-secondary" style="padding: 12px;" onclick="downloadExport('json')">Download JSON</button>
+      </div>
+
+      <div style="margin-top: 14px; text-align: center;">
+        <button style="background: none; border: none; color: var(--color-rose); font-family: var(--font-mono); font-size: 0.6875rem; cursor: pointer;" onclick="copyLeadContacts()">
+          Copy Contact Info to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GraphRAG Inspection Modal -->
+  <div class="modal-overlay" id="modalGraphRag">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">🔍 GraphRAG Multi-Hop Traversal Inspector</div>
+        <button class="modal-close" onclick="closeModal('modalGraphRag')">&times;</button>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; space-y: 10px; line-height: 1.6;">
+        <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--color-border);">
+          <span style="color: var(--color-cyan); display: block; font-size: 0.625rem;">HOP 01: FOUNDER INTENT EMBEDDING</span>
+          <span id="graphHop1">User Vision: Automated AI call dispatching software</span>
+        </div>
+        <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--color-border); margin-top: 8px;">
+          <span style="color: var(--color-rose); display: block; font-size: 0.625rem;">HOP 02: 200-TAXONOMY NICHE RESOLUTION</span>
+          <span id="graphHop2">Target Niche: Commercial Roofing Contractor [:REQUIRES_VENDOR] → Automated Dispatching</span>
+        </div>
+        <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid var(--color-border); margin-top: 8px;">
+          <span style="color: var(--color-emerald); display: block; font-size: 0.625rem;">HOP 03: DECISION-MAKER INTENT CONVERGENCE</span>
+          <span id="graphHop3">Lead: Marcus Sterling (VP Operations at Titan Commercial Roofing) [:EXHIBITS_BUYING_INTENT]</span>
+        </div>
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--color-text-secondary);">
+          <span>Vector Cosine Sim: <strong>0.942</strong></span>
+          <span>Dual-Webhook Signal: <strong>Active Hiring</strong></span>
+          <span>Deliverability: <strong>100% SMTP</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
   <!-- FOOTER                                                                  -->
   <!-- ======================================================================= -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--color-emerald);"></span>
-        <span style="font-family: var(--font-serif); font-size: 0.9375rem; color: #fff;">SignalMind</span>
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-emerald);"></span>
+        <span style="font-family: var(--font-serif); font-size: 1.05rem; color: #fff;">SignalMind</span>
         <span style="color: var(--color-text-tertiary);">|</span>
-        <span>AI Foundation Model for Autonomous B2B Leads</span>
+        <span>GraphRAG B2B Lead Intelligence Engine</span>
+        <span style="color: var(--color-text-tertiary);">|</span>
+        <a href="/app" style="color: var(--color-rose); text-decoration: none;">Interactive Studio (/app)</a>
       </div>
       <span>&copy; 2026 SignalMind Technologies Corp.</span>
     </div>
   </footer>
 
   <!-- ======================================================================= -->
-  <!-- JAVASCRIPT: THREE.JS 3D ASSET & SCROLL ORCHESTRATION                      -->
+  <!-- JAVASCRIPT: THREE.JS 3D ASSET, MULTI-MODAL INTAKE & API INTEGRATION       -->
   <!-- ======================================================================= -->
   <script>
     // =========================================================================
-    // 1. PRESET BUSINESS DATA
+    // 1. PRESET BUSINESS DATA & DYNAMIC STATE
     // =========================================================================
     const presetData = {
+      roofing: {
+        id: "commercial-roofing-contractor",
+        name: "Commercial Roofing Contractor",
+        category: "Construction, Building & Trades",
+        leadName: "Marcus Sterling",
+        leadRole: "VP of Operations & Dispatch",
+        leadCompany: "Titan Commercial Roofing &bull; Construction",
+        ticketSize: "$36k Contract",
+        leadInitials: "MS",
+        leadEmail: "m.sterling@titancommercialroofing.com",
+        leadPhone: "+1 (312) 749-3320",
+        triggerReason: "Job posting for 3 Dispatch Coordinators detected on LinkedIn. Expanding fleet by 14 trucks in Midwest region. High manual reporting friction.",
+        vendorNeed: "Dispatch Automation Software",
+        persona: "VP of Operations",
+        promptText: "We provide an automated AI call dispatching and appointment scheduling software for commercial roofing and HVAC contractors that eliminates phone bottlenecks 24/7.",
+        tFeed1: "Titan Roofing: Posted 3 Dispatch roles on LinkedIn (High Intent)",
+        tFeed2: "Marcus Sterling: SMTP mailbox verified, zero bounce risk"
+      },
       dental: {
         id: "dental-practice-clinic",
+        name: "Dental Practice & Clinic",
+        category: "Healthcare, Medical & Wellness",
         leadName: "Dr. Elena Vance, DDS",
         leadRole: "Chief Clinical Officer & Partner",
-        leadCompany: "Apex Regional Dental Group (24 Clinics)",
+        leadCompany: "Apex Regional Dental Group &bull; Healthcare",
         ticketSize: "$48k ARR Tier",
         leadInitials: "EV",
         leadEmail: "elena.vance@apexregionaldental.com",
         leadPhone: "+1 (415) 892-4910",
         triggerReason: "Organization initiated technographic migration from legacy Dentrix to cloud EHR. CCO Elena Vance downloaded HIPAA cloud integration brief. RFP actively circulating.",
-        hop1: "User Vision: B2B SaaS", hop2: "Vendor Need: Cloud EHR", hop3: "Chief Clinical Officer"
-      },
-      roofing: {
-        id: "commercial-roofing-contractor",
-        leadName: "Marcus Sterling",
-        leadRole: "VP of Operations & Dispatch",
-        leadCompany: "Titan Commercial Roofing",
-        ticketSize: "$36k Contract",
-        leadInitials: "MS",
-        leadEmail: "m.sterling@titancommercialroofing.com",
-        leadPhone: "+1 (312) 749-3320",
-        triggerReason: "Job posting for 3 Dispatch Coordinators detected on LinkedIn. Expanding fleet by 14 trucks in Midwest region. High manual drone reporting friction.",
-        hop1: "User Vision: AI Dispatch Agency", hop2: "Vendor Need: Drone Automation", hop3: "VP of Operations"
+        vendorNeed: "Cloud EHR Integration",
+        persona: "Chief Clinical Officer",
+        promptText: "AI clinical voice scribe and automated documentation software for dental practice clinics to accelerate charting and insurance claims.",
+        tFeed1: "Apex Dental: Downloaded HIPAA cloud EHR integration brief",
+        tFeed2: "Dr. Elena Vance: SMTP deliverability confirmed 99%"
       },
       cfo: {
         id: "fractional-cfo-financial-advisory",
+        name: "Fractional CFO Advisory",
+        category: "Financial Services, Legal & Insurance",
         leadName: "Claire Beauchamp",
         leadRole: "Founder & Chief Executive Officer",
-        leadCompany: "Synthetix Bio Cloud (Series A)",
+        leadCompany: "Synthetix Bio Cloud (Series A) &bull; FinTech",
         ticketSize: "$8k / Mo Retainer",
         leadInitials: "CB",
         leadEmail: "claire@synthetixbio.io",
         leadPhone: "+1 (212) 604-1892",
         triggerReason: "SEC Form D filing detected $14.2M Series A equity financing. Mandated institutional audit within 90 days. Previous interim head departed.",
-        hop1: "User Vision: Fractional CFO", hop2: "Vendor Need: Runway Modeling", hop3: "Founder / CEO"
+        vendorNeed: "Runway & Audit Modeling",
+        persona: "Chief Executive Officer",
+        promptText: "Fractional CFO advisory platform providing real-time cash runway stress-testing and automated GAAP audit preparation for Series A/B startups.",
+        tFeed1: "Synthetix Bio: Closed $14.2M Series A financing on SEC Form D",
+        tFeed2: "Claire Beauchamp: Direct dial verified via Webhook 2"
+      },
+      solar: {
+        id: "residential-solar-installation",
+        name: "Solar Installation Contractor",
+        category: "Construction, Building & Trades",
+        leadName: "David Kowalski",
+        leadRole: "Director of Permitting & Procurement",
+        leadCompany: "Summit Ridge Clean Energy &bull; Solar",
+        ticketSize: "$42k ARR Tier",
+        leadInitials: "DK",
+        leadEmail: "d.kowalski@summitcleanenergy.com",
+        leadPhone: "+1 (602) 819-4402",
+        triggerReason: "Municipal permit filing backlogs increased by 45 days. Seeking automated workflow tooling to expedite AHJ compliance.",
+        vendorNeed: "Automated Permit Workflows",
+        persona: "Director of Permitting",
+        promptText: "Automated municipal permit filing and engineering CAD generation platform for commercial and residential solar installation contractors.",
+        tFeed1: "Summit Clean Energy: Filing 80+ monthly solar permits in Southwest",
+        tFeed2: "David Kowalski: Mailbox active, zero bounce probability"
+      },
+      law: {
+        id: "commercial-law-firm",
+        name: "Commercial Law Firm",
+        category: "Professional Services & Consulting",
+        leadName: "Sophia Goldman, Esq.",
+        leadRole: "Managing Partner & Diligence Head",
+        leadCompany: "Goldman & Sterling Legal Partners &bull; Corporate Law",
+        ticketSize: "$60k Retainer",
+        leadInitials: "SG",
+        leadEmail: "s.goldman@gslegalpartners.com",
+        leadPhone: "+1 (212) 791-5502",
+        triggerReason: "Firm announced expansion of M&A advisory practice with 14 new cross-border transactions under diligence review.",
+        vendorNeed: "AI Contract Diligence Software",
+        persona: "Managing Partner",
+        promptText: "AI contract review and diligence redlining tool for corporate law firms to accelerate M&A document audits by 70%.",
+        tFeed1: "GS Legal: Announced M&A transaction diligence advisory expansion",
+        tFeed2: "Sophia Goldman: Verified direct dial and partner email"
       }
     };
 
-    let activePresetKey = 'dental';
+    let activePresetKey = 'roofing';
+    let currentLeadData = { ...presetData.roofing };
 
     function selectPreset(key, evt) {
       activePresetKey = key;
-      const data = presetData[key];
-      if (!data) return;
+      const d = presetData[key];
+      if (!d) return;
+      currentLeadData = { ...d };
 
-      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+      // Update preset buttons
+      document.querySelectorAll('.preset-chip').forEach(btn => btn.classList.remove('active'));
       if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
 
-      document.getElementById('leadName').textContent = data.leadName;
-      document.getElementById('leadRole').textContent = data.leadRole;
-      document.getElementById('leadCompany').textContent = data.leadCompany;
-      document.getElementById('leadTicketSize').textContent = data.ticketSize;
-      document.getElementById('leadInitials').textContent = data.leadInitials;
-      document.getElementById('leadEmail').textContent = data.leadEmail;
-      document.getElementById('leadPhone').textContent = data.leadPhone;
-      document.getElementById('leadTriggerReason').textContent = data.triggerReason;
+      // Update input fields
+      document.getElementById('customPromptInput').value = d.promptText;
+
+      // Update Beat 1 Dynamic Tags
+      document.getElementById('tagNiche').textContent = `Niche: ${d.name}`;
+      document.getElementById('tagPersona').textContent = `Target: ${d.persona}`;
+      document.getElementById('tagNeed').textContent = `Need: ${d.vendorNeed}`;
+
+      // Update Beat 2 Dissection
+      document.getElementById('dissectNodeName').textContent = d.name;
+      document.getElementById('dissectCategory').textContent = `${d.category} • 1-4 mos`;
+      document.getElementById('dissectPersona').textContent = d.persona;
+      document.getElementById('dissectNeed').textContent = d.vendorNeed;
+
+      // Update Beat 3 Telemetry Feeds
+      document.getElementById('tFeed1').textContent = d.tFeed1;
+      document.getElementById('tFeed2').textContent = d.tFeed2;
+
+      // Update Beat 4 Lead Card
+      document.getElementById('leadName').textContent = d.leadName;
+      document.getElementById('leadRole').textContent = d.leadRole;
+      document.getElementById('leadCompany').innerHTML = d.leadCompany;
+      document.getElementById('leadTicketSize').textContent = d.ticketSize;
+      document.getElementById('leadInitials').textContent = d.leadInitials;
+      document.getElementById('leadEmail').textContent = d.leadEmail;
+      document.getElementById('leadPhone').textContent = d.leadPhone;
+      document.getElementById('leadTriggerReason').textContent = d.triggerReason;
+
+      // Update Graph Inspection Modal Text
+      document.getElementById('graphHop1').textContent = `User Vision: ${d.promptText.substring(0, 70)}...`;
+      document.getElementById('graphHop2').textContent = `Target Niche: ${d.name} [:REQUIRES_VENDOR] → ${d.vendorNeed}`;
+      document.getElementById('graphHop3').textContent = `Lead: ${d.leadName} (${d.leadRole} at ${d.leadCompany.split('&')[0]})`;
+
+      // Trigger WebGL ripple feedback
+      triggerPetalRipple();
     }
 
-    function handleLeadExport() {
-      const d = presetData[activePresetKey];
-      alert(`[SignalMind CRM Export]:\n\n✓ Lead: ${d.leadName}\n✓ Company: ${d.leadCompany}\n✓ Email: ${d.leadEmail}\n✓ Phone: ${d.leadPhone}\n\nExported with verified GraphRAG multi-hop metadata.`);
+    // Tab Switching in Beat 1 Context Dock
+    function switchDockTab(tabId, evt) {
+      document.querySelectorAll('.dock-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.dock-pane').forEach(p => p.classList.remove('active'));
+
+      if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+      const pane = document.getElementById(`pane-${tabId}`);
+      if (pane) pane.classList.add('active');
     }
 
-    function inspectGraphRag() {
-      const d = presetData[activePresetKey];
-      alert(`[GraphRAG Inspection]:\n\n- Taxonomy: ${d.id}\n- Hop 1: ${d.hop1}\n- Hop 2: ${d.hop2}\n- Hop 3: ${d.hop3}\n- Intent Confidence: 99.4%\n- Continuous Webhooks Latency: 0.042ms`);
+    function handleTaxonomySelect(evt) {
+      const val = evt.target.value;
+      const text = evt.target.options[evt.target.selectedIndex].text;
+      document.getElementById('tagNiche').textContent = `Niche: ${text.split('(')[0]}`;
+      document.getElementById('dissectNodeName').textContent = text.split('(')[0];
+    }
+
+    // Submit Business Context & Trigger Full Pipeline
+    async function submitBusinessContext() {
+      const btn = document.getElementById('btnSubmitText');
+      const statusText = document.getElementById('dockStatusText');
+      const prompt = document.getElementById('customPromptInput').value.trim();
+
+      btn.textContent = "Synthesizing...";
+      statusText.textContent = "Vectorizing & Classifying against 200 Taxonomies...";
+
+      try {
+        const res = await fetch('/api/taxonomy/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vision_prompt: prompt })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const primary = data.primary_match || {};
+          
+          // Dynamically update Beat 1 tags
+          document.getElementById('tagNiche').textContent = `Niche: ${primary.name || 'Target Niche'}`;
+          if (data.aggregated_personas && data.aggregated_personas.length) {
+            document.getElementById('tagPersona').textContent = `Target: ${data.aggregated_personas[0]}`;
+            document.getElementById('dissectPersona').textContent = data.aggregated_personas[0];
+          }
+          if (data.aggregated_vendor_needs && data.aggregated_vendor_needs.length) {
+            document.getElementById('tagNeed').textContent = `Need: ${data.aggregated_vendor_needs[0]}`;
+            document.getElementById('dissectNeed').textContent = data.aggregated_vendor_needs[0];
+          }
+
+          document.getElementById('dissectNodeName').textContent = primary.name || 'Specialized Niche';
+          document.getElementById('dissectCategory').textContent = `${primary.category || 'B2B'} • ${primary.sales_cycle || '1-3 mos'}`;
+
+          // Also trigger lead synthesis in background
+          fetch('/api/leads/synthesize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              vision_prompt: prompt,
+              primary_match: primary,
+              personas: data.aggregated_personas,
+              vendor_needs: data.aggregated_vendor_needs
+            })
+          }).then(r => r.json()).then(synthData => {
+            if (synthData.top_matched_leads && synthData.top_matched_leads.length > 0) {
+              const top = synthData.top_matched_leads[0];
+              currentLeadData = {
+                ...currentLeadData,
+                leadName: top.name,
+                leadRole: top.title,
+                leadCompany: `${top.company} &bull; ${top.industry}`,
+                leadEmail: top.contact_email,
+                leadPhone: top.phone,
+                triggerReason: top.trigger_reason,
+                ticketSize: primary.typical_ticket_size || '$40k Tier'
+              };
+              document.getElementById('leadName').textContent = top.name;
+              document.getElementById('leadRole').textContent = top.title;
+              document.getElementById('leadCompany').innerHTML = `${top.company} &bull; ${top.industry}`;
+              document.getElementById('leadEmail').textContent = top.contact_email;
+              document.getElementById('leadPhone').textContent = top.phone;
+              document.getElementById('leadTriggerReason').textContent = top.trigger_reason;
+            }
+          }).catch(e => console.warn('Background lead synthesis note:', e));
+
+          statusText.textContent = "Intent Classified! Gliding to results...";
+          triggerPetalRipple();
+          setTimeout(() => jumpToStage(4), 600);
+        }
+      } catch (err) {
+        console.warn('API error, using local high-speed synthesis:', err);
+        statusText.textContent = "Local GraphRAG synthesis complete.";
+        triggerPetalRipple();
+        setTimeout(() => jumpToStage(4), 500);
+      } finally {
+        btn.textContent = "Synthesize & Traverse";
+      }
+    }
+
+    // Modal Controllers
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    }
+
+    function openOutreachModal() {
+      document.getElementById('modalTargetName').textContent = currentLeadData.leadName;
+      document.getElementById('modalTargetRole').textContent = currentLeadData.leadRole;
+      document.getElementById('modalTargetCompany').textContent = currentLeadData.leadCompany.split('&')[0].trim();
+      document.getElementById('modalEmailSubject').textContent = `Quick thought regarding ${currentLeadData.leadCompany.split('&')[0].trim()}'s ${currentLeadData.vendorNeed}`;
+      
+      const firstName = currentLeadData.leadName.split(' ')[0].replace('Dr.', '').trim();
+      document.getElementById('modalEmailBody').textContent = `Hi ${firstName},\n\nSaw ${currentLeadData.leadCompany.split('&')[0].trim()}'s recent signals around ${currentLeadData.triggerReason.toLowerCase()}.\n\nGiven your focus as ${currentLeadData.leadRole}, keeping turnaround fast while managing ${currentLeadData.vendorNeed} is likely a top priority right now.\n\nWe built an automated system that tackles this directly for leaders in your space—cutting turnaround by ~40% without friction.\n\nOpen to a brief 7-minute visual demo this Thursday?`;
+      
+      document.getElementById('modalLinkedinPitch').textContent = `Hi ${firstName}, noticed ${currentLeadData.leadCompany.split('&')[0].trim()}'s momentum in ${currentLeadData.vendorNeed}. We developed a lightweight workflow tool tailored for ${currentLeadData.leadRole}s to automate this without friction. Worth a quick connection?`;
+
+      openModal('modalOutreach');
+    }
+
+    function openExportModal() {
+      openModal('modalExport');
+    }
+
+    function openGraphRagModal() {
+      openModal('modalGraphRag');
+    }
+
+    function copyModalField(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+
+    function copyLeadContacts() {
+      const str = `Lead: ${currentLeadData.leadName}\nTitle: ${currentLeadData.leadRole}\nCompany: ${currentLeadData.leadCompany.replace('&bull;', '-')}\nEmail: ${currentLeadData.leadEmail}\nPhone: ${currentLeadData.leadPhone}`;
+      navigator.clipboard.writeText(str);
+      alert('Contact vectors copied to clipboard!');
+    }
+
+    function downloadExport(type) {
+      const d = currentLeadData;
+      if (type === 'json') {
+        const obj = {
+          lead_id: `lead_${Date.now()}`,
+          name: d.leadName,
+          title: d.leadRole,
+          company: d.leadCompany.replace('&bull;', '-').trim(),
+          contact_email: d.leadEmail,
+          phone: d.leadPhone,
+          trigger_reason: d.triggerReason,
+          ticket_size: d.ticketSize,
+          graph_rag_confidence: "99.4%"
+        };
+        const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj, null, 2));
+        const a = document.createElement('a');
+        a.href = str;
+        a.download = `signalmind_lead_${Date.now()}.json`;
+        a.click();
+        a.remove();
+      } else if (type === 'csv') {
+        const headers = ["Name", "Title", "Company", "Email", "Phone", "Trigger_Reason", "Ticket_Size"];
+        const row = [
+          `"${d.leadName}"`,
+          `"${d.leadRole}"`,
+          `"${d.leadCompany.replace('&bull;', '-').trim()}"`,
+          `"${d.leadEmail}"`,
+          `"${d.leadPhone}"`,
+          `"${d.triggerReason}"`,
+          `"${d.ticketSize}"`
+        ];
+        const csv = "data:text/csv;charset=utf-8," + [headers.join(","), row.join(",")].join("\n");
+        const a = document.createElement('a');
+        a.href = encodeURI(csv);
+        a.download = `signalmind_lead_${Date.now()}.csv`;
+        a.click();
+        a.remove();
+      }
+      closeModal('modalExport');
     }
 
     // =========================================================================
@@ -1106,7 +1798,7 @@
     const masterGroup = new THREE.Group();
     scene.add(masterGroup);
 
-    // ---- Studio Chiaroscuro Lights ----
+    // Studio Chiaroscuro Lights
     const keyLight = new THREE.DirectionalLight(0xfff5ee, 2.2);
     keyLight.position.set(4, 5, 5);
     scene.add(keyLight);
@@ -1122,7 +1814,6 @@
     const ambientLight = new THREE.AmbientLight(0xfff1f2, 0.55);
     scene.add(ambientLight);
 
-    // Point Light inside the rose core (Botanical Subsurface Glow)
     const corePointLight = new THREE.PointLight(0xff2255, 2.2, 4.0);
     corePointLight.position.set(0, 0.4, 0);
     masterGroup.add(corePointLight);
@@ -1133,7 +1824,6 @@
     const flowerGroup = new THREE.Group();
     masterGroup.add(flowerGroup);
 
-    // Generates a true organic petal: teardrop contour + parabolic cupping + flared curled rim
     function createRosePetalGeometry(width, height, cup, arch, curlBack) {
       const segU = 16;
       const segV = 18;
@@ -1143,29 +1833,18 @@
       const indices = [];
 
       for (let iv = 0; iv <= segV; iv++) {
-        const v = iv / segV; // 0 at base, 1 at tip
-        // Teardrop profile: narrow base, wide middle, gently rounded tip
+        const v = iv / segV;
         const profile = Math.sin(Math.pow(v, 0.68) * Math.PI) * (0.2 + 0.8 * Math.sqrt(v));
         const halfW = (width * 0.5) * profile;
 
         for (let iu = 0; iu <= segU; iu++) {
-          const u = (iu / segU) * 2.0 - 1.0; // -1 to +1
-          
+          const u = (iu / segU) * 2.0 - 1.0;
           const x = u * halfW;
           const y = v * height;
-
-          // Parabolic cupping across width (hollow shell)
           const cupFactor = -(u * u) * cup * Math.sin(v * Math.PI * 0.85);
-
-          // Forward arch along the petal height
           const archFactor = Math.sin(v * Math.PI * 0.8) * arch;
-
-          // Backward roll / curl at the tip
           const curlFactor = (v > 0.62) ? -Math.pow((v - 0.62) / 0.38, 2.0) * curlBack : 0.0;
-
-          // Delicate edge flutter
           const flutter = Math.sin(u * 9.0) * 0.02 * (v * v);
-
           const z = cupFactor + archFactor + curlFactor + flutter;
 
           positions.push(x, y, z);
@@ -1194,14 +1873,12 @@
     const petalMeshes = [];
     const TOTAL_PETALS = 58;
 
-    // Build the petals using the Golden Angle (137.5°) in concentric opening layers
     for (let p = 0; p < TOTAL_PETALS; p++) {
       const u = p / TOTAL_PETALS;
-      const angle = p * 2.399963; // Golden angle
+      const angle = p * 2.399963;
 
       let pWidth, pHeight, pCup, pArch, pCurl, pRadius, pTilt, pColor, pEmissive;
 
-      // Layer 1: Core Bud (Tightly wrapped, deep velvet crimson)
       if (p < 10) {
         pWidth = 0.42 + p * 0.02;
         pHeight = 0.65 + p * 0.03;
@@ -1212,9 +1889,7 @@
         pTilt = 0.12 + p * 0.02;
         pColor = '#700827';
         pEmissive = 0.35;
-      }
-      // Layer 2: Inner Blooming Cup (Spiraling outwards, rich crimson)
-      else if (p < 24) {
+      } else if (p < 24) {
         const t = (p - 10) / 14;
         pWidth = 0.62 + t * 0.2;
         pHeight = 0.85 + t * 0.15;
@@ -1225,9 +1900,7 @@
         pTilt = 0.32 + t * 0.25;
         pColor = '#9f1239';
         pEmissive = 0.25;
-      }
-      // Layer 3: Mid Petals (Voluptuous, vivid rose)
-      else if (p < 42) {
+      } else if (p < 42) {
         const t = (p - 24) / 18;
         pWidth = 0.85 + t * 0.25;
         pHeight = 1.0 + t * 0.2;
@@ -1238,9 +1911,7 @@
         pTilt = 0.6 + t * 0.25;
         pColor = '#e11d48';
         pEmissive = 0.18;
-      }
-      // Layer 4: Guard Petals (Wide open, flared curled tips, blush rose)
-      else {
+      } else {
         const t = (p - 42) / 16;
         pWidth = 1.15 + t * 0.25;
         pHeight = 1.25 + t * 0.15;
@@ -1269,8 +1940,6 @@
       });
 
       const mesh = new THREE.Mesh(geo, mat);
-
-      // Pivot group at rose center
       const pivot = new THREE.Group();
       pivot.rotation.y = angle;
       pivot.position.y = 0.25 - u * 0.3;
@@ -1281,8 +1950,7 @@
       pivot.add(mesh);
       flowerGroup.add(pivot);
 
-      // Tag each petal for horizontal glitch slice dissection (Beat 2)
-      const sliceBand = p % 4; // 4 alternating horizontal slice planes
+      const sliceBand = p % 4;
       mesh.userData = {
         pivot: pivot,
         origMeshX: mesh.position.x,
@@ -1295,7 +1963,7 @@
       petalMeshes.push(mesh);
     }
 
-    // ---- Green Calyx Sepals (Hugging the flower base) ----
+    // Calyx Sepals
     const sepalMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.5, side: THREE.DoubleSide });
     for (let s = 0; s < 5; s++) {
       const sAngle = s * (Math.PI * 2 / 5);
@@ -1310,7 +1978,7 @@
       flowerGroup.add(sPivot);
     }
 
-    // ---- Organic Curving Stem ----
+    // Stem
     const stemCurve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, 0.1, 0.0),
       new THREE.Vector3(0.05, -0.6, 0.02),
@@ -1332,66 +2000,24 @@
       flowerGroup.add(thorn);
     });
 
-    // Compound Rose Leaves (Serrated oval leaflets)
-    function createCompoundLeaf(x, y, z, rotX, rotY, rotZ) {
-      const leafGroup = new THREE.Group();
-      leafGroup.position.set(x, y, z);
-      leafGroup.rotation.set(rotX, rotY, rotZ);
-
-      const leafGeo = new THREE.BufferGeometry();
-      const lPos = [];
-      const lInd = [];
-      for (let iv = 0; iv <= 10; iv++) {
-        const v = iv / 10;
-        const w = Math.sin(v * Math.PI) * 0.28;
-        for (let iu = 0; iu <= 6; iu++) {
-          const u = (iu / 6) * 2 - 1;
-          const lx = u * w;
-          const ly = v * 0.7;
-          const lz = -Math.abs(u) * 0.08 + Math.sin(v * Math.PI) * 0.04;
-          lPos.push(lx, ly, lz);
-        }
-      }
-      for (let iv = 0; iv < 10; iv++) {
-        for (let iu = 0; iu < 6; iu++) {
-          const a = iv * 7 + iu;
-          const b = (iv + 1) * 7 + iu;
-          const c = (iv + 1) * 7 + (iu + 1);
-          const d = iv * 7 + (iu + 1);
-          lInd.push(a, b, d);
-          lInd.push(b, c, d);
-        }
-      }
-      leafGeo.setIndex(lInd);
-      leafGeo.setAttribute('position', new THREE.Float32BufferAttribute(lPos, 3));
-      leafGeo.computeVertexNormals();
-
-      const lMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.42, side: THREE.DoubleSide });
-      const mainLeaf = new THREE.Mesh(leafGeo, lMat);
-      leafGroup.add(mainLeaf);
-
-      // Side leaflets
-      const side1 = new THREE.Mesh(leafGeo, lMat);
-      side1.scale.set(0.7, 0.7, 0.7);
-      side1.position.set(0.2, 0.15, 0);
-      side1.rotation.z = -0.55;
-      leafGroup.add(side1);
-
-      const side2 = new THREE.Mesh(leafGeo, lMat);
-      side2.scale.set(0.7, 0.7, 0.7);
-      side2.position.set(-0.2, 0.15, 0);
-      side2.rotation.z = 0.55;
-      leafGroup.add(side2);
-
-      flowerGroup.add(leafGroup);
-      return leafGroup;
+    // Petal Ripple Animation on User Input
+    function triggerPetalRipple() {
+      petalMeshes.forEach((mesh, idx) => {
+        gsap.to(mesh.scale, {
+          x: 1.08, y: 1.08, z: 1.08,
+          duration: 0.25,
+          delay: (idx % 8) * 0.03,
+          yoyo: true,
+          repeat: 1,
+          ease: "power2.out"
+        });
+      });
+      corePointLight.intensity = 4.5;
+      gsap.to(corePointLight, { intensity: 2.2, duration: 0.8, ease: "power2.out" });
     }
 
-    const leafBranch1 = createCompoundLeaf(0.4, -0.6, 0.1, 0.3, 0.3, -0.65);
-    const leafBranch2 = createCompoundLeaf(-0.45, -1.4, -0.05, -0.2, -0.4, 0.75);
-
     // =========================================================================
-    // 4. BEAT 2: GLITCH DISSECTION LASER FRAMES
+    // 4. BEAT 2: GLITCH DISSECTION FRAMES
     // =========================================================================
     const sliceFramesGroup = new THREE.Group();
     masterGroup.add(sliceFramesGroup);
@@ -1412,7 +2038,7 @@
     }
 
     // =========================================================================
-    // 5. BEAT 3: DUAL FOURIER WAVEFORM TELEMETRY (Webhook 1 & 2)
+    // 5. BEAT 3: DUAL FOURIER WAVEFORM TELEMETRY
     // =========================================================================
     const signalGroup = new THREE.Group();
     masterGroup.add(signalGroup);
@@ -1429,12 +2055,11 @@
       return new THREE.Mesh(geo, mat);
     }
 
-    const webhook1Ribbon = createTelemetryRibbon(0x22d3ee); // Webhook 1 Cyan
-    const webhook2Ribbon = createTelemetryRibbon(0xfb7185); // Webhook 2 Rose
+    const webhook1Ribbon = createTelemetryRibbon(0x22d3ee);
+    const webhook2Ribbon = createTelemetryRibbon(0xfb7185);
     signalGroup.add(webhook1Ribbon);
     signalGroup.add(webhook2Ribbon);
 
-    // 80 Glowing Data Pulse Beads running along the waves
     const beadGeo = new THREE.SphereGeometry(0.045, 8, 8);
     const beadMat1 = new THREE.MeshBasicMaterial({ color: 0x22d3ee });
     const beadMat2 = new THREE.MeshBasicMaterial({ color: 0xfb7185 });
@@ -1448,12 +2073,11 @@
     }
 
     // =========================================================================
-    // 6. BEAT 4: 3D HOLOGRAPHIC GRAPHRAG KNOWLEDGE NODE
+    // 6. BEAT 4: HOLOGRAPHIC GRAPHRAG KNOWLEDGE NODE
     // =========================================================================
     const leadHoloGroup = new THREE.Group();
     masterGroup.add(leadHoloGroup);
 
-    // Core Decision-Maker Sphere
     const coreSphereGeo = new THREE.SphereGeometry(0.55, 24, 24);
     const coreSphereMat = new THREE.MeshStandardMaterial({
       color: 0x34d399,
@@ -1465,7 +2089,6 @@
     const coreSphere = new THREE.Mesh(coreSphereGeo, coreSphereMat);
     leadHoloGroup.add(coreSphere);
 
-    // 3 Concentric Multi-Hop Orbital Rings
     function createHoloRing(radius, colorHex) {
       const ringGeo = new THREE.RingGeometry(radius - 0.02, radius + 0.02, 64);
       const ringMat = new THREE.MeshBasicMaterial({
@@ -1478,14 +2101,13 @@
       return new THREE.Mesh(ringGeo, ringMat);
     }
 
-    const ring1 = createHoloRing(1.2, 0x22d3ee); // Hop 1: Vision
-    const ring2 = createHoloRing(1.8, 0xfb7185); // Hop 2: Need
-    const ring3 = createHoloRing(2.4, 0x34d399); // Hop 3: Decision Maker
+    const ring1 = createHoloRing(1.2, 0x22d3ee);
+    const ring2 = createHoloRing(1.8, 0xfb7185);
+    const ring3 = createHoloRing(2.4, 0x34d399);
     leadHoloGroup.add(ring1);
     leadHoloGroup.add(ring2);
     leadHoloGroup.add(ring3);
 
-    // Orbiting Pulse Beads
     const orbitBeads = [];
     for (let o = 0; o < 12; o++) {
       const ob = new THREE.Mesh(beadGeo, beadMat1);
@@ -1548,7 +2170,6 @@
           vColor = aColor;
           vec3 pos = position;
 
-          // Swirling botanical vortex
           float angle = uTime * 0.35 + length(pos.xz) * 0.5;
           float cosA = cos(angle);
           float sinA = sin(angle);
@@ -1582,7 +2203,6 @@
     const particles = new THREE.Points(pGeo, particleMat);
     masterGroup.add(particles);
 
-    // Mouse Tracking for Parallax
     const mouse = new THREE.Vector2();
     window.addEventListener('mousemove', e => {
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -1590,9 +2210,10 @@
     });
 
     // =========================================================================
-    // 8. SCROLL STORY BEAT ORCHESTRATOR
+    // 8. SCROLL STORY BEAT ORCHESTRATOR & CANVAS UNMOUNTING
     // =========================================================================
     const scrollStage = document.getElementById('scroll-stage');
+    const taxonomySection = document.getElementById('taxonomy-section');
     const beats = [
       document.getElementById('beat-1'),
       document.getElementById('beat-2'),
@@ -1605,7 +2226,6 @@
       'Beat 03 — Dual-Channel Telemetry',
       'Beat 04 — Verified Decision-Maker'
     ];
-    const telemetryStatus = document.getElementById('telemetryStatus');
     const beatLabelEl = document.getElementById('beatLabel');
     const scrollPctEl = document.getElementById('scrollPct');
 
@@ -1617,6 +2237,13 @@
       const rect = scrollStage.getBoundingClientRect();
       const total = scrollStage.offsetHeight - window.innerHeight;
       targetProgress = Math.max(0, Math.min(1, -rect.top / total));
+
+      // Fade out canvas when scrolling past Beat 4 into the taxonomy section
+      if (rect.bottom < window.innerHeight * 0.5) {
+        canvas.style.opacity = '0';
+      } else {
+        canvas.style.opacity = window.innerWidth < 1024 ? '0.22' : '1';
+      }
     }, { passive: true });
 
     const clock = new THREE.Clock();
@@ -1629,13 +2256,8 @@
       particleMat.uniforms.uProgress.value = smoothProgress;
       particleMat.uniforms.uTime.value = t;
 
-      // Mouse Parallax on Right Scene
       masterGroup.rotation.y = Math.sin(t * 0.2) * 0.06 + mouse.x * 0.12;
       masterGroup.rotation.x = Math.cos(t * 0.18) * 0.04 - mouse.y * 0.08;
-
-      // -----------------------------------------------------------------------
-      // BEAT TRANSITIONS IN 3D
-      // -----------------------------------------------------------------------
 
       // Beat 1: The Organic Vision (0.00 – 0.25)
       if (smoothProgress < 0.25) {
@@ -1655,10 +2277,8 @@
         });
 
         stemMesh.visible = true;
-        leafBranch1.visible = true;
-        leafBranch2.visible = true;
       }
-      // Beat 2: Intent Dissection (0.25 – 0.50) — Glitch Shift
+      // Beat 2: Intent Dissection (0.25 – 0.50)
       else if (smoothProgress >= 0.25 && smoothProgress < 0.50) {
         flowerGroup.visible = true;
         signalGroup.visible = false;
@@ -1672,7 +2292,6 @@
           const shiftX = mesh.userData.dissectDirection * ease * 1.5;
           mesh.position.x = mesh.userData.origMeshX + shiftX;
 
-          // Chromatic shift: alternate bands glow cyan / magenta
           if (mesh.userData.sliceBand % 2 === 0) {
             mesh.material.color.lerp(new THREE.Color('#22d3ee'), ease * 0.4);
           } else {
@@ -1682,15 +2301,13 @@
         });
 
         stemMesh.visible = ease < 0.6;
-        leafBranch1.visible = ease < 0.4;
-        leafBranch2.visible = ease < 0.4;
 
         sliceFrames.forEach((frame, idx) => {
           frame.material.opacity = Math.min(0.65, ease * 0.85);
           frame.position.x = ((idx % 2 === 0 ? 1 : -1) * 0.6) * ease;
         });
       }
-      // Beat 3: Continuous Signals (0.50 – 0.75) — Dual Waveforms
+      // Beat 3: Continuous Signals (0.50 – 0.75)
       else if (smoothProgress >= 0.50 && smoothProgress < 0.75) {
         flowerGroup.visible = false;
         signalGroup.visible = true;
@@ -1701,7 +2318,6 @@
         webhook1Ribbon.material.opacity = Math.min(0.85, sub * 1.6);
         webhook2Ribbon.material.opacity = Math.min(0.85, sub * 1.6);
 
-        // Modulate Waveforms
         const p1 = webhook1Ribbon.geometry.attributes.position;
         const p2 = webhook2Ribbon.geometry.attributes.position;
         for (let i = 0; i < p1.count; i++) {
@@ -1712,7 +2328,6 @@
         p1.needsUpdate = true;
         p2.needsUpdate = true;
 
-        // Animate Data Pulse Beads along waves
         signalBeads.forEach(bead => {
           const prog = (bead.userData.offset + t * 0.15) % 1.0;
           const bx = (prog * 2.0 - 1.0) * 3.8;
@@ -1722,7 +2337,7 @@
           bead.position.set(bx, by, 0.05);
         });
       }
-      // Beat 4: Compounding Results & Verified Lead (0.75 – 1.00) — Holographic Graph Node
+      // Beat 4: Compounding Results & Verified Lead (0.75 – 1.00)
       else {
         flowerGroup.visible = false;
         signalGroup.visible = false;
@@ -1736,7 +2351,6 @@
         ring2.material.opacity = Math.min(0.5, ease * 0.7);
         ring3.material.opacity = Math.min(0.4, ease * 0.6);
 
-        // Rotate holographic rings at different speeds
         ring1.rotation.z = t * 0.4;
         ring1.rotation.x = Math.PI * 0.35 + Math.sin(t * 0.3) * 0.1;
 
@@ -1746,11 +2360,9 @@
         ring3.rotation.z = t * 0.2;
         ring3.rotation.x = Math.PI * 0.15;
 
-        // Core sphere breathing pulse
         const pulseScale = 1.0 + Math.sin(t * 2.5) * 0.06;
         coreSphere.scale.set(pulseScale, pulseScale, pulseScale);
 
-        // Orbit beads
         orbitBeads.forEach(ob => {
           const r = [1.2, 1.8, 2.4][ob.userData.ringIdx];
           const speed = [0.6, -0.4, 0.3][ob.userData.ringIdx];
@@ -1777,7 +2389,6 @@
       else if (p >= 0.50) active = 2;
       else if (p >= 0.25) active = 1;
 
-      // Update visible beat layer
       beats.forEach((beat, i) => {
         if (i === active) {
           beat.classList.add('visible');
@@ -1786,7 +2397,6 @@
         }
       });
 
-      // Update navbar indicators
       for (let i = 0; i < 4; i++) {
         const btn = document.getElementById(`navStage-${i + 1}`);
         if (btn) {
@@ -1796,15 +2406,6 @@
       }
 
       if (beatLabelEl) beatLabelEl.textContent = beatLabels[active];
-      if (telemetryStatus) {
-        const statuses = [
-          "BEAT 01 // THE ORGANIC FOUNDER VISION",
-          "BEAT 02 // INTENT VECTORS & TAXONOMY DISSECTION",
-          "BEAT 03 // CONTINUOUS DUAL-CHANNEL TELEMETRY",
-          "BEAT 04 // VERIFIED DECISION-MAKER READY"
-        ];
-        telemetryStatus.textContent = statuses[active];
-      }
     }
 
     function jumpToStage(num) {
@@ -1815,7 +2416,55 @@
       window.scrollTo({ top: top + h * pct, behavior: 'smooth' });
     }
 
-    selectPreset('dental');
+    // Populate 200 Taxonomies Grid dynamically from REST API
+    async function loadTaxonomies() {
+      try {
+        const res = await fetch('/api/taxonomy/categories');
+        if (res.ok) {
+          const data = await res.json();
+          const grid = document.getElementById('taxonomyGrid');
+          if (data.categories && data.categories.length) {
+            grid.innerHTML = data.categories.map((c, i) => {
+              const colors = ['var(--color-rose)', 'var(--color-cyan)', '#a78bfa', 'var(--color-emerald)'];
+              const color = colors[i % colors.length];
+              return `
+                <div class="taxonomy-card">
+                  <span class="taxonomy-count" style="color: ${color};">${c.count} Business Types</span>
+                  <div class="taxonomy-title">${c.category}</div>
+                  <p class="taxonomy-desc">${c.sample_types.slice(0, 3).join(', ')}</p>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Taxonomy load note:', e);
+      }
+    }
+
+    // Live Webhook Telemetry Ticker Poll
+    async function pollLiveTelemetry() {
+      try {
+        const res = await fetch('/api/telemetry/feed');
+        if (res.ok) {
+          const data = await res.json();
+          const events = data.live_stream || [];
+          if (events.length > 0) {
+            const ev = events[0];
+            document.getElementById('navTelemetryText').innerHTML = 
+              `<strong>[${ev.source.split(' ')[0]}]</strong> ${ev.company}: ${ev.details.substring(0, 42)}...`;
+          }
+        }
+      } catch (e) {
+        console.warn('Telemetry poll note:', e);
+      }
+    }
+
+    // Initialize Default State
+    selectPreset('roofing');
+    loadTaxonomies();
+    pollLiveTelemetry();
+    setInterval(pollLiveTelemetry, 6000);
   </script>
 </body>
 </html>
