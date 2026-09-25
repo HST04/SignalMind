@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignalMind — Lead Intelligence Engine & GraphRAG Synthesis</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Plus Jakarta Sans and JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              DEFAULT: '#08080a',
+              card: '#0f0f14',
+              surface: '#13131a',
+              border: 'rgba(255, 255, 255, 0.08)',
+            },
+            rosepetal: {
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              glow: 'rgba(251, 113, 133, 0.35)',
+            },
+            signal: {
+              cyan: '#22d3ee',
+              magenta: '#f43f5e',
+            }
+          },
+          letterSpacing: {
+            tighter: '-0.04em',
+            tightest: '-0.05em',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .liquid-glass {
+      background: rgba(18, 18, 24, 0.75);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+    
+    .liquid-glass-card {
+      background: linear-gradient(135deg, rgba(22, 22, 30, 0.65) 0%, rgba(13, 13, 18, 0.8) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+    .liquid-glass-card:hover {
+      border-color: rgba(251, 113, 133, 0.25);
+    }
+
+    .liquid-btn-primary {
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.95) 0%, rgba(225, 29, 72, 0.95) 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px -4px rgba(244, 63, 94, 0.45);
+      transition: all 0.25s ease;
+    }
+    .liquid-btn-primary:hover {
+      transform: scale(1.015);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 12px 32px -4px rgba(244, 63, 94, 0.65);
+    }
+
+    .liquid-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      transition: all 0.2s ease;
+    }
+    .liquid-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-[#08080a] text-zinc-300 font-sans antialiased selection:bg-rose-500/30 selection:text-white min-h-screen relative flex flex-col">
+
+  <!-- Ambient Glow Background -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-[250px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-rose-500/10 via-purple-900/10 to-transparent blur-[130px] rounded-full"></div>
+    <div class="absolute top-[35%] -left-[200px] w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full"></div>
+    <div class="absolute inset-0 scanlines opacity-30"></div>
+  </div>
+
+  <!-- STICKY HEADER -->
+  <header class="sticky top-0 z-50 liquid-glass border-b border-white/10 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Brand & Home Link -->
+      <div class="flex items-center gap-4">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center p-0.5 relative">
+            <div class="absolute inset-0 bg-gradient-to-tr from-rose-500/40 to-cyan-400/30 rounded-full blur-[2px]"></div>
+            <svg class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-105" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <path d="M50 18 C34 18 24 34 28 50 C31 63 39 76 50 82 C61 76 69 63 72 50 C76 34 66 18 50 18 Z" stroke="#fb7185" stroke-width="2.5" fill="rgba(251,113,133,0.12)"/>
+              <path d="M22 50 Q36 38 50 50 T78 50" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="3.5" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-white tracking-tight text-sm font-sans">SignalMind</span>
+              <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">Studio</span>
+            </div>
+            <div class="text-[10px] text-zinc-400 font-mono">GraphRAG B2B Synthesis Engine</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Live Engine Telemetry Pill & Health Indicator -->
+      <div class="hidden md:flex items-center gap-3 text-xs font-mono">
+        <div id="healthBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="healthStatusText">Graph Engine: In-Memory / Neo4j Ready</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300">
+          <i data-lucide="database" class="w-3.5 h-3.5"></i>
+          <span>200 Taxonomies Active</span>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTelemetryDrawer()" class="liquid-btn-secondary px-3 py-1.5 rounded-xl text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>Webhooks Telemetry</span>
+        </button>
+        <a href="/" class="liquid-btn-secondary px-3 py-1.5 rounded-xl text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Landing Page</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- LIVE TELEMETRY TICKER BAR -->
+  <div class="bg-black/60 border-b border-white/5 py-1.5 px-6 overflow-hidden">
+    <div class="max-w-7xl mx-auto flex items-center gap-3 text-[11px] font-mono">
+      <span class="text-rose-400 uppercase font-semibold flex items-center gap-1 shrink-0">
+        <i data-lucide="activity" class="w-3 h-3"></i>
+        <span>Live Telemetry Stream:</span>
+      </span>
+      <div id="liveTickerText" class="text-zinc-400 truncate">
+        Initializing dual-channel webhook stream (Webhook 1: Market Ingestion • Webhook 2: Lead Enrichment)...
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 relative z-10 space-y-8">
+    
+    <!-- STEP 1: FOUNDER VISION INPUT & PRESETS -->
+    <section class="liquid-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-4 border-b border-white/10">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">STAGE 01</span>
+            <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">Founder Vision & Problem Statement</h2>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Describe the business you are building in plain English. The AI will classify your niche across 200 categories and map your ideal buyer personas.</p>
+        </div>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="mb-4">
+        <span class="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block mb-2">Try Real-World Founder Presets:</span>
+        <div class="flex flex-wrap gap-2 text-xs font-mono">
+          <button onclick="applyPreset('roofing')" class="preset-btn px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors">
+            <span>🏗️ Commercial Roofing Dispatch AI</span>
+          </button>
+          <button onclick="applyPreset('dental')" class="preset-btn px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors">
+            <span>🦷 Dental Practice AI Scribe</span>
+          </button>
+          <button onclick="applyPreset('cfo')" class="preset-btn px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors">
+            <span>💼 Fractional CFO Advisory SaaS</span>
+          </button>
+          <button onclick="applyPreset('solar')" class="preset-btn px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors">
+            <span>☀️ Solar Installation CRM & Permits</span>
+          </button>
+          <button onclick="applyPreset('law')" class="preset-btn px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors">
+            <span>⚖️ Commercial Law Contract Review</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vision Textarea Form -->
+      <form id="visionForm" onsubmit="handleClassify(event)" class="space-y-4">
+        <div class="relative">
+          <textarea
+            id="visionInput"
+            rows="3"
+            required
+            placeholder="e.g. I am building an AI automated call dispatching software for commercial roofing and HVAC contractors that eliminates manual phone bottlenecks and books appointments 24/7..."
+            class="w-full bg-black/60 border border-white/15 rounded-2xl p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-rose-400 font-sans transition-all custom-scrollbar"
+          ></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <!-- Toggle Live Scraper -->
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-mono text-zinc-400 hover:text-zinc-200">
+              <input type="checkbox" id="liveScraperToggle" class="accent-rose-500 rounded">
+              <span>Enable Live Web Scraper Mode</span>
+            </label>
+            <input
+              type="url"
+              id="liveTargetUrl"
+              placeholder="https://directory-url.com"
+              class="hidden bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none font-mono"
+            />
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              onclick="handleQuickSynthesize()"
+              class="liquid-btn-secondary px-5 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 flex items-center gap-2"
+            >
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-yellow-400"></i>
+              <span>Instant 1-Click Synthesis</span>
+            </button>
+
+            <button
+              type="submit"
+              id="classifyBtn"
+              class="liquid-btn-primary px-6 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center gap-2"
+            >
+              <i data-lucide="scan" class="w-3.5 h-3.5"></i>
+              <span>Classify Niche & Match Graph</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- STEP 2: TAXONOMY & GRAPH DISSECTION PANEL -->
+    <section id="taxonomyPanel" class="hidden liquid-glass-card rounded-3xl p-6 sm:p-8 border border-rose-500/30 shadow-2xl space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">STAGE 02</span>
+            <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">GraphRAG Taxonomy & Persona Dissection</h2>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Review the AI-mapped business taxonomy node, buyer personas, and vendor needs extracted from `data/business_types.json`.</p>
+        </div>
+
+        <button
+          onclick="executeLeadSynthesis()"
+          id="synthesizeLeadsBtn"
+          class="liquid-btn-primary px-6 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center gap-2 shadow-lg"
+        >
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Synthesize Hyper-Targeted Leads</span>
+        </button>
+      </div>
+
+      <!-- Dissection Content Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Primary Matched Taxonomy Node -->
+        <div class="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-zinc-500 uppercase">Primary Taxonomy Node</span>
+            <span id="matchConfidenceBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">98.5% Match</span>
+          </div>
+          <div>
+            <h3 id="taxonomyName" class="text-base font-bold text-white tracking-tight">Commercial Roofing Contractor</h3>
+            <span id="taxonomyCategory" class="text-xs text-rose-300 font-mono">Construction, Building & Trades</span>
+          </div>
+          <p id="taxonomyDesc" class="text-xs text-zinc-400 leading-relaxed">Companies providing industrial and commercial roofing, membrane installation, and waterproofing services.</p>
+          
+          <div class="pt-2 border-t border-white/5 grid grid-cols-2 gap-2 text-[11px] font-mono">
+            <div>
+              <span class="text-zinc-500 block">Typical Ticket:</span>
+              <span id="taxonomyTicket" class="text-zinc-200">High ($20k - $250k)</span>
+            </div>
+            <div>
+              <span class="text-zinc-500 block">Sales Cycle:</span>
+              <span id="taxonomyCycle" class="text-zinc-200">1 to 4 months</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Buyer Personas -->
+        <div class="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-zinc-500 uppercase">Target Buyer Personas</span>
+            <span class="text-cyan-300 text-[10px]">Verified Decision-Makers</span>
+          </div>
+          <div id="personasContainer" class="flex flex-wrap gap-2 text-xs font-mono">
+            <!-- Dynamic persona chips -->
+          </div>
+          <div class="pt-2">
+            <span class="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Add Custom Persona:</span>
+            <div class="flex gap-2">
+              <input type="text" id="customPersonaInput" placeholder="e.g. Chief Operating Officer" class="bg-black/60 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none w-full font-mono">
+              <button onclick="addCustomPersona()" type="button" class="liquid-btn-secondary px-3 py-1.5 rounded-lg text-xs font-mono text-zinc-300">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolved Vendor Needs & Channels -->
+        <div class="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-zinc-500 uppercase">Vendor Needs (Pain Points)</span>
+            <span class="text-rose-300 text-[10px]">Multi-Hop Graph Link</span>
+          </div>
+          <div id="vendorNeedsContainer" class="flex flex-wrap gap-2 text-xs font-mono">
+            <!-- Dynamic vendor need chips -->
+          </div>
+          <div class="pt-2 border-t border-white/5">
+            <span class="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Recommended Outreach Channels:</span>
+            <div id="channelsContainer" class="flex flex-wrap gap-1.5 text-[11px] font-mono text-zinc-300">
+              <!-- Dynamic channels -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STEP 3: PIPELINE LOADING / PROGRESS INDICATOR -->
+    <section id="pipelineLoading" class="hidden liquid-glass-card rounded-3xl p-8 border border-white/15 text-center space-y-4">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/40 animate-spin mb-2">
+        <i data-lucide="loader-2" class="w-6 h-6 text-rose-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-white tracking-tight" id="pipelineStepText">Vectorizing Founder Intent...</h3>
+      <p class="text-xs text-zinc-400 max-w-md mx-auto" id="pipelineSubText">Executing multi-hop Graph traversal across 200 taxonomy nodes and fusing real-time webhook telemetry.</p>
+      
+      <!-- Progress Bar -->
+      <div class="max-w-md mx-auto h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-rose-500 to-cyan-400 w-1/3 transition-all duration-500"></div>
+      </div>
+    </section>
+
+    <!-- STEP 4: LEAD RESULTS SUITE -->
+    <section id="leadsSection" class="hidden space-y-6">
+      
+      <!-- Results Overview Header -->
+      <div class="liquid-glass-card rounded-3xl p-6 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">STAGE 03</span>
+            <h2 class="text-xl font-bold text-white tracking-tight">Verified GraphRAG Leads Delivered</h2>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1" id="leadsSummaryText">Matched against commercial roofing contractor taxonomy & vendor needs.</p>
+        </div>
+
+        <!-- Metric Badges & Export Buttons -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
+            <span class="text-emerald-400 font-bold">98.2%</span> Deliverability
+          </div>
+          <div class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-zinc-300">
+            <span class="text-cyan-400 font-bold">GraphRAG</span> Traversal Active
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="exportLeads('csv')" class="liquid-btn-secondary px-3.5 py-1.5 rounded-xl text-xs font-mono text-zinc-200 flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export CSV</span>
+            </button>
+            <button onclick="exportLeads('json')" class="liquid-btn-secondary px-3.5 py-1.5 rounded-xl text-xs font-mono text-zinc-200 flex items-center gap-1.5">
+              <i data-lucide="file-json" class="w-3.5 h-3.5"></i>
+              <span>Export JSON</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead Cards Grid -->
+      <div id="leadsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 1-CLICK AI OUTREACH PITCH MODAL -->
+  <div id="outreachModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="liquid-glass-card rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-rose-500/40 shadow-2xl relative space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="p-1 rounded bg-rose-500/20 text-rose-300">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </span>
+          <h3 class="text-base font-bold text-white">1-Click AI Personalized Outreach Pitch</h3>
+        </div>
+        <button onclick="closeOutreachModal()" class="text-zinc-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="text-xs font-mono text-zinc-400 flex items-center gap-3">
+        <span>Target: <strong id="modalLeadName" class="text-white"></strong></span>
+        <span>•</span>
+        <span id="modalLeadTitle" class="text-rose-300"></span>
+        <span>•</span>
+        <span id="modalLeadCompany" class="text-zinc-200 font-semibold"></span>
+      </div>
+
+      <!-- Cold Email Box -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-zinc-400 uppercase">Hyper-Personalized Cold Email</span>
+          <button onclick="copyToClipboard('modalEmailBody', 'Email body copied!')" class="text-rose-300 hover:text-white flex items-center gap-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Email</span>
+          </button>
+        </div>
+        <div class="p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-xs text-zinc-300 space-y-2">
+          <div><strong class="text-zinc-500">Subject:</strong> <span id="modalEmailSubject" class="text-white font-semibold"></span></div>
+          <div id="modalEmailBody" class="whitespace-pre-line text-zinc-300 pt-1 leading-relaxed border-t border-white/5"></div>
+        </div>
+      </div>
+
+      <!-- LinkedIn InMail Box -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-zinc-400 uppercase">Direct LinkedIn InMail Note</span>
+          <button onclick="copyToClipboard('modalLinkedinPitch', 'LinkedIn pitch copied!')" class="text-cyan-300 hover:text-white flex items-center gap-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy LinkedIn Note</span>
+          </button>
+        </div>
+        <div id="modalLinkedinPitch" class="p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-xs text-zinc-300 whitespace-pre-line leading-relaxed"></div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeOutreachModal()" class="liquid-btn-secondary px-5 py-2 rounded-xl text-xs font-mono text-zinc-300">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELEMETRY & WEBHOOKS DRAWER -->
+  <div id="telemetryDrawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 liquid-glass border-l border-white/10 shadow-2xl p-6 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="flex items-center justify-between pb-4 border-b border-white/10">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+        <h3 class="text-sm font-bold text-white">Dual-Webhook Stream</h3>
+      </div>
+      <button onclick="toggleTelemetryDrawer()" class="text-zinc-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Webhook Test Action -->
+    <div class="py-4 border-b border-white/10 space-y-2">
+      <span class="text-[11px] font-mono text-zinc-400 uppercase block">Simulate Inbound Webhook:</span>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="simulateWebhook('market')" class="liquid-btn-secondary px-2.5 py-1.5 rounded-lg text-[11px] font-mono text-rose-300">
+          + Ingest Market Signal
+        </button>
+        <button onclick="simulateWebhook('enrichment')" class="liquid-btn-secondary px-2.5 py-1.5 rounded-lg text-[11px] font-mono text-cyan-300">
+          + Ingest Enrichment
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Event List -->
+    <div class="flex-1 overflow-y-auto py-3 space-y-2.5 custom-scrollbar" id="drawerEventList">
+      <div class="text-xs font-mono text-zinc-500 text-center py-4">Loading real-time webhook telemetry...</div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden liquid-glass px-4 py-2.5 rounded-xl border border-rose-500/40 text-xs font-mono text-white shadow-2xl flex items-center gap-2">
+    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">Success</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION CONTROLLER -->
+  <script>
+    lucide.createIcons();
+
+    // App State
+    let currentClassification = null;
+    let currentLeads = [];
+    let currentVision = "";
+
+    const PRESETS = {
+      roofing: "I am building an automated AI call dispatching and appointment scheduling software for commercial roofing and HVAC contractors that eliminates manual phone bottlenecks and books appointments 24/7.",
+      dental: "We provide an automated clinical documentation and voice AI scribe for multi-location dental practice clinics to accelerate patient charting and insurance claim submissions.",
+      cfo: "A B2B SaaS platform offering fractional CFO advisory tools, cash flow stress-testing, and automated financial forecasting for growing mid-market companies.",
+      solar: "Specialized workflow CRM and automated municipal permit filing tool for residential and commercial solar installation contractors.",
+      law: "AI-driven contract analysis and compliance audit software for commercial law firms and corporate legal departments to expedite diligence."
+    };
+
+    function applyPreset(key) {
+      if (PRESETS[key]) {
+        document.getElementById('visionInput').value = PRESETS[key];
+        showToast(`Loaded ${key.toUpperCase()} preset! Click 'Classify Niche' or 'Instant Synthesis'.`);
+      }
+    }
+
+    // Toggle Live Scraper URL field
+    document.getElementById('liveScraperToggle').addEventListener('change', function(e) {
+      const urlInput = document.getElementById('liveTargetUrl');
+      if (e.target.checked) {
+        urlInput.classList.remove('hidden');
+      } else {
+        urlInput.classList.add('hidden');
+      }
+    });
+
+    // Handle Classification
+    async function handleClassify(e) {
+      if (e) e.preventDefault();
+      const vision = document.getElementById('visionInput').value.trim();
+      if (!vision) return;
+      currentVision = vision;
+
+      const btn = document.getElementById('classifyBtn');
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Classifying...</span>';
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/taxonomy/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vision_prompt: vision })
+        });
+
+        if (!res.ok) throw new Error('Classification request failed');
+        const data = await res.json();
+        currentClassification = data;
+        renderTaxonomyPanel(data);
+      } catch (err) {
+        showToast('Classification error: ' + err.message);
+      } finally {
+        btn.innerHTML = '<i data-lucide="scan" class="w-3.5 h-3.5"></i><span>Classify Niche & Match Graph</span>';
+        lucide.createIcons();
+      }
+    }
+
+    function renderTaxonomyPanel(data) {
+      const panel = document.getElementById('taxonomyPanel');
+      panel.classList.remove('hidden');
+
+      const primary = data.primary_match || {};
+      document.getElementById('taxonomyName').textContent = primary.name || 'B2B Enterprise';
+      document.getElementById('taxonomyCategory').textContent = `${primary.category || 'General'} • ${primary.sub_category || ''}`;
+      document.getElementById('taxonomyDesc').textContent = primary.description || 'Specialized business vertical matching user intent.';
+      document.getElementById('taxonomyTicket').textContent = primary.typical_ticket_size || 'Mid-Market';
+      document.getElementById('taxonomyCycle').textContent = primary.sales_cycle || '1-3 months';
+      document.getElementById('matchConfidenceBadge').textContent = `${primary.match_score || 98.4}% Intent Match`;
+
+      // Render Personas
+      const personasBox = document.getElementById('personasContainer');
+      personasBox.innerHTML = (data.aggregated_personas || []).map(p => `
+        <span class="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 flex items-center gap-1">
+          <span>${p}</span>
+          <button type="button" onclick="this.parentElement.remove()" class="hover:text-white">&times;</button>
+        </span>
+      `).join('');
+
+      // Render Vendor Needs
+      const needsBox = document.getElementById('vendorNeedsContainer');
+      needsBox.innerHTML = (data.aggregated_vendor_needs || []).map(vn => `
+        <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 flex items-center gap-1">
+          <span>${vn}</span>
+          <button type="button" onclick="this.parentElement.remove()" class="hover:text-white">&times;</button>
+        </span>
+      `).join('');
+
+      // Render Channels
+      const channelsBox = document.getElementById('channelsContainer');
+      channelsBox.innerHTML = (data.recommended_channels || []).map(ch => `
+        <span class="px-2 py-0.5 rounded bg-white/5 border border-white/5">${ch}</span>
+      `).join('');
+
+      panel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function addCustomPersona() {
+      const input = document.getElementById('customPersonaInput');
+      const val = input.value.trim();
+      if (!val) return;
+      const box = document.getElementById('personasContainer');
+      const span = document.createElement('span');
+      span.className = "px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 flex items-center gap-1";
+      span.innerHTML = `<span>${val}</span><button type="button" onclick="this.parentElement.remove()" class="hover:text-white">&times;</button>`;
+      box.appendChild(span);
+      input.value = '';
+    }
+
+    // 1-Click Fast Synthesis
+    async function handleQuickSynthesize() {
+      const vision = document.getElementById('visionInput').value.trim();
+      if (!vision) {
+        showToast('Please type a founder vision prompt or pick a preset above.');
+        return;
+      }
+      currentVision = vision;
+      await handleClassify();
+      await executeLeadSynthesis();
+    }
+
+    // Execute Full Lead Synthesis
+    async function executeLeadSynthesis() {
+      const vision = currentVision || document.getElementById('visionInput').value.trim();
+      if (!vision) return;
+
+      const loadingSection = document.getElementById('pipelineLoading');
+      const leadsSection = document.getElementById('leadsSection');
+      leadsSection.classList.add('hidden');
+      loadingSection.classList.remove('hidden');
+      loadingSection.scrollIntoView({ behavior: 'smooth' });
+
+      // Gather edited personas and needs
+      const personaElements = document.querySelectorAll('#personasContainer span > span:first-child');
+      const personas = Array.from(personaElements).map(el => el.textContent.trim());
+
+      const needElements = document.querySelectorAll('#vendorNeedsContainer span > span:first-child');
+      const needs = Array.from(needElements).map(el => el.textContent.trim());
+
+      const useLive = document.getElementById('liveScraperToggle').checked;
+      const targetUrl = document.getElementById('liveTargetUrl').value.trim();
+
+      // Progress animation simulation
+      const stepText = document.getElementById('pipelineStepText');
+      const bar = document.getElementById('progressBar');
+      
+      bar.style.width = '30%';
+      stepText.textContent = "1/4 Vectorizing Founder Intent & Classifying 200 Taxonomies...";
+
+      setTimeout(() => {
+        bar.style.width = '60%';
+        stepText.textContent = "2/4 Traversing GraphRAG Relationships (:Business)-[:REQUIRES_VENDOR]->(:VendorNeed)...";
+      }, 700);
+
+      setTimeout(() => {
+        bar.style.width = '85%';
+        stepText.textContent = "3/4 Fusing Live Webhook Telemetry & MX Deliverability Checks...";
+      }, 1400);
+
+      try {
+        const payload = {
+          vision_prompt: vision,
+          primary_match: currentClassification ? currentClassification.primary_match : null,
+          personas: personas,
+          vendor_needs: needs,
+          use_live_scraper: useLive,
+          target_url: targetUrl
+        };
+
+        const res = await fetch('/api/leads/synthesize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Lead synthesis failed');
+        const data = await res.json();
+        currentLeads = data.top_matched_leads || [];
+
+        bar.style.width = '100%';
+        stepText.textContent = "4/4 Graph Matches Confirmed! Delivering Hyper-Targeted Leads...";
+
+        setTimeout(() => {
+          loadingSection.classList.add('hidden');
+          renderLeads(currentLeads, data);
+        }, 500);
+
+      } catch (err) {
+        loadingSection.classList.add('hidden');
+        showToast('Error synthesizing leads: ' + err.message);
+      }
+    }
+
+    // Render Leads
+    function renderLeads(leads, data) {
+      const section = document.getElementById('leadsSection');
+      section.classList.remove('hidden');
+
+      const primary = data.primary_taxonomy_match || {};
+      document.getElementById('leadsSummaryText').textContent = 
+        `Synthesized ${leads.length} verified leads for ${primary.name || 'Target Niche'} (${primary.category || 'B2B'}).`;
+
+      const grid = document.getElementById('leadsGrid');
+      grid.innerHTML = leads.map((lead, idx) => `
+        <div class="liquid-glass-card rounded-2xl p-5 border border-white/10 space-y-4 hover:border-rose-500/30 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <!-- Header: Name, Title, Deliverability -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h4 class="text-base font-bold text-white tracking-tight">${lead.name}</h4>
+                <div class="text-xs text-rose-300 font-medium">${lead.title}</div>
+                <div class="text-[11px] text-zinc-400 font-mono">${lead.company} • ${lead.industry}</div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
+                  ${lead.deliverability_score}% Deliverable
+                </span>
+                <div class="text-[10px] text-cyan-300 font-mono mt-0.5">${lead.graph_rag_score * 100}% Match</div>
+              </div>
+            </div>
+
+            <!-- Intent Trigger Signal Badge -->
+            <div class="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono text-yellow-400 font-semibold">
+                <i data-lucide="radio" class="w-3 h-3 text-yellow-400"></i>
+                <span>LIVE INTENT TRIGGER</span>
+              </div>
+              <p class="text-xs text-zinc-200 leading-snug">${lead.trigger_reason}</p>
+            </div>
+
+            <!-- Contact Vector -->
+            <div class="pt-1 space-y-1.5 text-xs font-mono">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/5">
+                <div class="flex items-center gap-2 text-zinc-300 truncate">
+                  <i data-lucide="mail" class="w-3.5 h-3.5 text-rose-400 shrink-0"></i>
+                  <span class="truncate">${lead.contact_email}</span>
+                </div>
+                <button onclick="copyRaw('${lead.contact_email}', 'Email copied!')" class="text-zinc-500 hover:text-white shrink-0 ml-2">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 px-1">
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="phone" class="w-3 h-3 text-zinc-500"></i>
+                  <span>${lead.phone}</span>
+                </div>
+                <a href="${lead.linkedin_url}" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1">
+                  <span>LinkedIn</span>
+                  <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Graph Traversal Reasoning -->
+            <div class="text-[10px] font-mono text-zinc-500 leading-tight">
+              <span class="text-zinc-400 font-semibold">Graph Path:</span> ${lead.graph_reasoning}
+            </div>
+          </div>
+
+          <!-- 1-Click Action -->
+          <div class="pt-3 border-t border-white/5">
+            <button
+              onclick="openOutreachModal(${idx})"
+              class="liquid-btn-primary w-full py-2 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2"
+            >
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>1-Click AI Outreach Pitch</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // AI Outreach Modal
+    async function openOutreachModal(leadIdx) {
+      const lead = currentLeads[leadIdx];
+      if (!lead) return;
+
+      document.getElementById('modalLeadName').textContent = lead.name;
+      document.getElementById('modalLeadTitle').textContent = lead.title;
+      document.getElementById('modalLeadCompany').textContent = lead.company;
+
+      document.getElementById('modalEmailSubject').textContent = "Generating custom subject line...";
+      document.getElementById('modalEmailBody').textContent = "Synthesizing personalized outreach pitch...";
+      document.getElementById('modalLinkedinPitch').textContent = "Formulating InMail hook...";
+
+      document.getElementById('outreachModal').classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/leads/outreach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lead: lead,
+            founder_vision: currentVision,
+            vendor_need: lead.vendor_need_match
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const outreach = data.outreach || {};
+          document.getElementById('modalEmailSubject').textContent = outreach.email_subject || `Quick question regarding ${lead.company}`;
+          document.getElementById('modalEmailBody').textContent = outreach.email_body || '';
+          document.getElementById('modalLinkedinPitch').textContent = outreach.linkedin_pitch || '';
+        }
+      } catch (e) {
+        showToast('Failed to generate AI pitch: ' + e.message);
+      }
+    }
+
+    function closeOutreachModal() {
+      document.getElementById('outreachModal').classList.add('hidden');
+    }
+
+    // Export Leads to CSV or JSON
+    function exportLeads(type) {
+      if (!currentLeads || currentLeads.length === 0) {
+        showToast('No leads available to export.');
+        return;
+      }
+
+      if (type === 'json') {
+        const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentLeads, null, 2));
+        const a = document.createElement('a');
+        a.setAttribute("href", str);
+        a.setAttribute("download", `signalmind_leads_${Date.now()}.json`);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('Exported JSON leads file.');
+      } else if (type === 'csv') {
+        const headers = ["Name", "Title", "Company", "Industry", "Email", "Phone", "LinkedIn", "Trigger_Reason", "Deliverability", "Match_Score"];
+        const rows = currentLeads.map(l => [
+          `"${l.name}"`,
+          `"${l.title}"`,
+          `"${l.company}"`,
+          `"${l.industry}"`,
+          `"${l.contact_email}"`,
+          `"${l.phone}"`,
+          `"${l.linkedin_url}"`,
+          `"${l.trigger_reason}"`,
+          `"${l.deliverability_score}%"`,
+          `"${l.graph_rag_score}"`
+        ]);
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `signalmind_leads_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast('Exported CSV leads file.');
+      }
+    }
+
+    // Clipboard helper
+    function copyToClipboard(elementId, msg) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text);
+      showToast(msg);
+    }
+
+    function copyRaw(text, msg) {
+      navigator.clipboard.writeText(text);
+      showToast(msg);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3500);
+    }
+
+    // Telemetry Drawer
+    function toggleTelemetryDrawer() {
+      const drawer = document.getElementById('telemetryDrawer');
+      drawer.classList.toggle('translate-x-full');
+    }
+
+    // Telemetry Poller & Ticker
+    async function updateTelemetryFeed() {
+      try {
+        const res = await fetch('/api/telemetry/feed');
+        if (res.ok) {
+          const data = await res.json();
+          const events = data.live_stream || [];
+          if (events.length > 0) {
+            // Update Ticker
+            const latest = events[0];
+            document.getElementById('liveTickerText').innerHTML = 
+              `<span class="text-zinc-200 font-semibold">[${latest.source}]</span> <span class="text-rose-300 font-mono">${latest.company}</span> — ${latest.details} (${latest.timestamp})`;
+
+            // Update Drawer
+            const drawerList = document.getElementById('drawerEventList');
+            drawerList.innerHTML = events.map(evt => `
+              <div class="p-3 rounded-xl bg-black/40 border border-white/5 space-y-1 font-mono text-xs">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="${evt.source.includes('Webhook 1') ? 'text-rose-400' : 'text-cyan-400'}">${evt.source}</span>
+                  <span class="text-zinc-500">${evt.timestamp}</span>
+                </div>
+                <div class="text-white font-semibold">${evt.company}</div>
+                <div class="text-zinc-400 text-[11px]">${evt.details}</div>
+                <div class="text-emerald-400 text-[10px]">${evt.signal_strength}</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Telemetry poll error:', e);
+      }
+    }
+
+    // Ingest Simulated Webhook Event
+    async function simulateWebhook(type) {
+      const endpoint = type === 'market' ? '/api/webhooks/market-signals' : '/api/webhooks/enrichment';
+      const payload = type === 'market' ? {
+        signal_type: "HIRING_EXPANSION",
+        company: "Apex RoofTech Solutions",
+        details: "Opened 3 regional project manager positions on LinkedIn"
+      } : {
+        company: "Vanguard Commercial Mechanical",
+        details: "Executive direct dial & MX deliverability confirmed",
+        deliverability: 99
+      };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast(`Simulated ${type.toUpperCase()} webhook event recorded!`);
+          updateTelemetryFeed();
+        }
+      } catch (e) {
+        showToast('Webhook simulation error: ' + e.message);
+      }
+    }
+
+    // Health Check on load
+    async function checkSystemHealth() {
+      try {
+        const res = await fetch('/api/health');
+        if (res.ok) {
+          const data = await res.json();
+          const dbStatus = data.database?.status || 'active';
+          const azureConfig = data.database?.azure_vm_configured;
+          const statusText = document.getElementById('healthStatusText');
+          if (azureConfig) {
+            statusText.textContent = `Azure VM Neo4j: ${dbStatus}`;
+          } else {
+            statusText.textContent = `Graph Engine: ${dbStatus === 'connected' ? 'Neo4j Live' : 'In-Memory Graph Active'}`;
+          }
+        }
+      } catch (e) {
+        console.warn('Health check error:', e);
+      }
+    }
+
+    // Init
+    checkSystemHealth();
+    updateTelemetryFeed();
+    setInterval(updateTelemetryFeed, 5000);
+
+    // Initial preset preview
+    applyPreset('roofing');
+  </script>
+</body>
+</html>

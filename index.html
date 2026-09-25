@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html class="scroll-smooth bg-black text-white" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SignalMind — AI-Driven Autonomous Lead Synthesis</title>
+  
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Typography: Instrument Serif + Inter Tight + JetBrains Mono -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ========================================================================= */
+    /* DESIGN SYSTEM: OBSIDIAN MINIMALISM + APPLE HIG CRAFT                      */
+    /* ========================================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #000000;
+      --color-surface: #0a0a12;
+      --color-surface-2: #12121e;
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-border-hover: rgba(255, 255, 255, 0.18);
+      --color-text: #ffffff;
+      --color-text-secondary: #a1a1aa;
+      --color-text-tertiary: #52525b;
+      --color-rose: #fb7185;
+      --color-rose-soft: #fda4af;
+      --color-rose-deep: #e11d48;
+      --color-cyan: #22d3ee;
+      --color-emerald: #34d399;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::selection {
+      background: rgba(251, 113, 133, 0.3);
+      color: #fff;
+    }
+
+    /* ========================================================================= */
+    /* TOP NAVBAR                                                                */
+    /* ========================================================================= */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 clamp(1.5rem, 4vw, 3rem);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .nav-brand-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      box-shadow: 0 0 14px rgba(251, 113, 133, 0.8);
+    }
+
+    .nav-brand-text {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 2.2rem;
+      list-style: none;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links { display: flex; }
+    }
+
+    .nav-link {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      text-decoration: none;
+      transition: color 0.25s;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: #fff;
+    }
+
+    .nav-link.active .num {
+      color: var(--color-rose);
+      font-weight: 600;
+    }
+
+    .nav-link .num {
+      color: var(--color-text-tertiary);
+      margin-right: 4px;
+      transition: color 0.25s;
+    }
+
+    .nav-cta {
+      background: #ffffff;
+      color: #000000;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      letter-spacing: 0.02em;
+      padding: 7px 20px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-cta:hover {
+      background: var(--color-rose);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(251, 113, 133, 0.4);
+    }
+
+    /* ========================================================================= */
+    /* SPLIT-SCREEN VIEWPORT ARCHITECTURE                                        */
+    /* Left 48%: Story Beats & Interactive Controls                              */
+    /* Right 52%: Fixed Three.js WebGL Canvas                                    */
+    /* ========================================================================= */
+    #webgl-canvas {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 52vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @media (max-width: 1023px) {
+      #webgl-canvas {
+        width: 100vw;
+        opacity: 0.25;
+      }
+    }
+
+    .scroll-stage {
+      position: relative;
+      height: 480vh;
+      z-index: 10;
+    }
+
+    .sticky-viewport {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Telemetry Line */
+    .top-telemetry {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      padding: 10px clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.12em;
+      color: var(--color-text-tertiary);
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .top-telemetry-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .telemetry-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-rose);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Left Story Beat Stack */
+    .beats-container {
+      position: relative;
+      flex: 1;
+      width: 48%;
+      height: 100%;
+    }
+
+    @media (max-width: 1023px) {
+      .beats-container { width: 100%; }
+    }
+
+    .beat {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: clamp(1.5rem, 5vw, 4.5rem);
+      padding-right: clamp(1rem, 3vw, 2.5rem);
+      padding-top: 70px;
+      padding-bottom: 60px;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .beat.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ========================================================================= */
+    /* TYPOGRAPHY                                                                */
+    /* ========================================================================= */
+    .eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.9rem;
+    }
+
+    .headline {
+      font-family: var(--font-serif);
+      font-size: clamp(2.3rem, 3.6vw, 3.8rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      font-weight: 400;
+      color: #ffffff;
+      margin-bottom: 1.1rem;
+    }
+
+    .headline em {
+      font-style: italic;
+      color: var(--color-rose-soft);
+      display: block;
+      margin-top: 0.1em;
+    }
+
+    .body-text {
+      font-family: var(--font-sans);
+      font-size: clamp(0.875rem, 1vw, 0.975rem);
+      font-weight: 350;
+      line-height: 1.65;
+      color: var(--color-text-secondary);
+      max-width: 460px;
+    }
+
+    /* ========================================================================= */
+    /* CYBERNETIC CORNER-BRACKETED TAGS                                          */
+    /* ========================================================================= */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 1.4rem;
+    }
+
+    .cyber-tag {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 5px 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .cyber-tag::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 4px;
+      height: 4px;
+      border-top: 1px solid var(--color-cyan);
+      border-left: 1px solid var(--color-cyan);
+    }
+
+    .cyber-tag::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 4px;
+      height: 4px;
+      border-bottom: 1px solid var(--color-rose);
+      border-right: 1px solid var(--color-rose);
+    }
+
+    /* ========================================================================= */
+    /* PRESET BUTTONS                                                            */
+    /* ========================================================================= */
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 1.25rem;
+    }
+
+    .preset-btn {
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      font-weight: 400;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid var(--color-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      color: #fff;
+      border-color: var(--color-border-hover);
+    }
+
+    .preset-btn.active {
+      border-color: rgba(251, 113, 133, 0.5);
+      background: rgba(251, 113, 133, 0.1);
+      color: var(--color-rose-soft);
+    }
+
+    /* ========================================================================= */
+    /* BEAT 4: COMPACT METRIC ROW & LIQUID GLASS DOSSIER                         */
+    /* ========================================================================= */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 1rem;
+      max-width: 440px;
+    }
+
+    .metric-pill {
+      background: linear-gradient(180deg, rgba(22, 22, 32, 0.9) 0%, rgba(8, 8, 14, 0.95) 100%);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .metric-pill-val {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      color: #ffffff;
+      display: block;
+      line-height: 1.1;
+    }
+
+    .metric-pill-lbl {
+      font-family: var(--font-sans);
+      font-size: 0.5625rem;
+      color: var(--color-text-tertiary);
+      margin-top: 3px;
+      display: block;
+      letter-spacing: 0.02em;
+    }
+
+    .lead-card {
+      margin-top: 0.9rem;
+      max-width: 440px;
+      background: rgba(12, 12, 20, 0.85);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(251, 113, 133, 0.12);
+    }
+
+    .lead-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .lead-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-emerald);
+    }
+
+    .lead-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-emerald);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .lead-tier {
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(251, 113, 133, 0.1);
+      color: var(--color-rose-soft);
+      border: 1px solid rgba(251, 113, 133, 0.2);
+    }
+
+    .lead-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .lead-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(251, 113, 133, 0.25), rgba(34, 211, 238, 0.25));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 0.9375rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .lead-name {
+      font-family: var(--font-serif);
+      font-size: 1.0625rem;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .lead-role {
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      color: var(--color-rose);
+      margin-top: 1px;
+    }
+
+    .lead-company {
+      font-size: 0.6875rem;
+      color: var(--color-text-tertiary);
+    }
+
+    .lead-trigger {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 9px;
+    }
+
+    .lead-trigger-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      color: var(--color-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .lead-trigger-text {
+      font-size: 0.6875rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .lead-contacts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 9px;
+    }
+
+    .lead-contact-box {
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--color-border);
+    }
+
+    .lead-contact-label {
+      font-family: var(--font-mono);
+      font-size: 0.48rem;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    .lead-contact-value {
+      font-size: 0.625rem;
+      color: #fff;
+      word-break: break-all;
+    }
+
+    .lead-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .lead-btn-primary {
+      flex: 1;
+      background: #ffffff;
+      color: #000000;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.6875rem;
+      padding: 8px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .lead-btn-primary:hover {
+      background: var(--color-rose);
+      color: #fff;
+    }
+
+    .lead-btn-secondary {
+      padding: 8px 14px;
+      border-radius: 9999px;
+      border: 1px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lead-btn-secondary:hover {
+      color: #fff;
+      border-color: var(--color-border-hover);
+    }
+
+    /* ========================================================================= */
+    /* BOTTOM PROGRESS HUD                                                       */
+    /* ========================================================================= */
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4.5rem);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--color-border);
+      z-index: 30;
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+    }
+
+    .progress-pct {
+      color: var(--color-rose);
+      font-weight: 500;
+    }
+
+    /* ========================================================================= */
+    /* TAXONOMY SECTION                                                          */
+    /* ========================================================================= */
+    .taxonomy-section {
+      position: relative;
+      z-index: 20;
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem);
+      border-top: 1px solid var(--color-border);
+      background: #000000;
+    }
+
+    .taxonomy-header {
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    .taxonomy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .taxonomy-card {
+      background: linear-gradient(180deg, rgba(18, 18, 26, 0.85) 0%, rgba(6, 6, 10, 0.95) 100%);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 22px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .taxonomy-card:hover {
+      border-color: rgba(251, 113, 133, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .taxonomy-count {
+      font-family: var(--font-mono);
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .taxonomy-title {
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .taxonomy-desc {
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      line-height: 1.5;
+    }
+
+    /* ========================================================================= */
+    /* FOOTER                                                                    */
+    /* ========================================================================= */
+    .site-footer {
+      position: relative;
+      z-index: 20;
+      border-top: 1px solid var(--color-border);
+      padding: 2.2rem clamp(1.5rem, 5vw, 4rem);
+      background: #000000;
+    }
+
+    .footer-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--color-text-tertiary);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================= -->
+  <!-- THREE.JS CANVAS — Fixed on RIGHT 52% of the viewport                    -->
+  <!-- ======================================================================= -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- ======================================================================= -->
+  <!-- TOP NAVBAR                                                              -->
+  <!-- ======================================================================= -->
+  <header class="nav">
+    <a href="#" class="nav-brand">
+      <span class="nav-brand-dot"></span>
+      <span class="nav-brand-text">SignalMind</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><button class="nav-link active" id="navStage-1" onclick="jumpToStage(1)"><span class="num">01</span> Vision</button></li>
+      <li><button class="nav-link" id="navStage-2" onclick="jumpToStage(2)"><span class="num">02</span> Dissection</button></li>
+      <li><button class="nav-link" id="navStage-3" onclick="jumpToStage(3)"><span class="num">03</span> Signals</button></li>
+      <li><button class="nav-link" id="navStage-4" onclick="jumpToStage(4)"><span class="num">04</span> Lead</button></li>
+    </ul>
+
+    <button class="nav-cta" onclick="jumpToStage(4)">Get Started</button>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- 4-STAGE PINNED SCROLLYTELLING VIEWPORT                                   -->
+  <!-- ======================================================================= -->
+  <section class="scroll-stage" id="scroll-stage">
+    <div class="sticky-viewport">
+
+      <!-- Top Telemetry Status Line -->
+      <div class="top-telemetry">
+        <div class="top-telemetry-left">
+          <span class="telemetry-pulse"></span>
+          <span id="telemetryStatus">BEAT 01 // THE ORGANIC FOUNDER VISION</span>
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <span class="hidden sm:inline">TAXONOMY: 200 CATEGORIES</span>
+          <span>LATENCY: 0.042MS</span>
+        </div>
+      </div>
+
+      <!-- Left Story Beat Container -->
+      <div class="beats-container">
+
+        <!-- =============================================================== -->
+        <!-- BEAT 1: The Organic Founder Vision (0.00 – 0.25)                -->
+        <!-- =============================================================== -->
+        <div class="beat visible" id="beat-1">
+          <span class="eyebrow">The Founder Vision</span>
+          <h1 class="headline">
+            Every business begins<br/>
+            as an organic vision.
+            <em>Delicate, complex,<br/>and unformed.</em>
+          </h1>
+          <p class="body-text">
+            You describe your business in natural language. SignalMind's AI parses your raw intuition — mapping it across 200 curated taxonomies and a living GraphRAG knowledge graph — to deliver the exact paying customer you need.
+          </p>
+
+          <div class="presets">
+            <button class="preset-btn active" onclick="selectPreset('dental', event)">Dental Clinics B2B SaaS</button>
+            <button class="preset-btn" onclick="selectPreset('roofing', event)">Commercial Roofing AI</button>
+            <button class="preset-btn" onclick="selectPreset('cfo', event)">Fractional CFO Advisory</button>
+          </div>
+
+          <div class="tags">
+            <span class="cyber-tag">Organic Intent</span>
+            <span class="cyber-tag">Founder Intuition</span>
+            <span class="cyber-tag">Natural Language</span>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- BEAT 2: Intent Dissection (0.25 – 0.50)                         -->
+        <!-- =============================================================== -->
+        <div class="beat" id="beat-2">
+          <span class="eyebrow" style="color: var(--color-cyan);">Intent Dissection</span>
+          <h2 class="headline">
+            Raw intuition fractures<br/>
+            into structured vectors.
+            <em>Dissecting the<br/>botanical matrix.</em>
+          </h2>
+          <p class="body-text">
+            Thousands of variables. Billions of intent signals. We dissect your prompt across 200 curated B2B categories, mapping buyers, decision-makers, and technographic triggers in real time.
+          </p>
+
+          <div class="tags">
+            <span class="cyber-tag">B2B SaaS Clinics</span>
+            <span class="cyber-tag">Decision Makers</span>
+            <span class="cyber-tag">Technographic Triggers</span>
+            <span class="cyber-tag">200 Taxonomy Tiers</span>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- BEAT 3: Continuous Dual Signals (0.50 – 0.75)                   -->
+        <!-- =============================================================== -->
+        <div class="beat" id="beat-3">
+          <span class="eyebrow" style="color: var(--color-rose);">Introducing SignalMind</span>
+          <h2 class="headline">
+            Continuous dual-channel<br/>
+            market telemetry.
+            <em>Compounding intelligence<br/>in real time.</em>
+          </h2>
+          <p class="body-text">
+            Dissected intent vectors flow into continuous Fourier telemetry waveforms. Webhook 1 streams live market feeds while Webhook 2 enriches verified decision-makers via 3-hop GraphRAG traversal.
+          </p>
+
+          <div class="tags">
+            <span class="cyber-tag" style="color: var(--color-cyan);">Webhook 1: 84,000 feeds/sec</span>
+            <span class="cyber-tag" style="color: var(--color-rose-soft);">Webhook 2: Enrichment</span>
+            <span class="cyber-tag" style="color: var(--color-emerald);">3-Hop GraphRAG Engine</span>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- BEAT 4: Compounding Results & Verified Lead (0.75 – 1.00)       -->
+        <!-- =============================================================== -->
+        <div class="beat" id="beat-4">
+          <span class="eyebrow" style="color: var(--color-emerald);">Compounding Results</span>
+          <h2 class="headline" style="font-size: clamp(1.8rem, 2.8vw, 2.6rem); margin-bottom: 0.6rem;">
+            The signal crystallizes into<br/>your paying customer.
+          </h2>
+
+          <!-- 4-Pill Metric Row -->
+          <div class="metric-row">
+            <div class="metric-pill">
+              <span class="metric-pill-val">99.4%</span>
+              <span class="metric-pill-lbl">Intent Accuracy</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-pill-val" style="color: var(--color-cyan);">0.042ms</span>
+              <span class="metric-pill-lbl">GraphRAG</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-pill-val" style="color: var(--color-emerald);">100%</span>
+              <span class="metric-pill-lbl">SMTP Verified</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-pill-val" style="color: var(--color-rose-soft);">200</span>
+              <span class="metric-pill-lbl">Curated Types</span>
+            </div>
+          </div>
+
+          <!-- Apple Liquid Glass Lead Dossier Card -->
+          <div class="lead-card">
+            <div class="lead-header">
+              <div class="lead-status">
+                <span class="lead-status-dot"></span>
+                <span>Verified Decision-Maker</span>
+              </div>
+              <span class="lead-tier" id="leadTicketSize">$48k ARR Tier</span>
+            </div>
+
+            <div class="lead-profile">
+              <div class="lead-avatar" id="leadInitials">EV</div>
+              <div>
+                <div class="lead-name" id="leadName">Dr. Elena Vance, DDS</div>
+                <div class="lead-role" id="leadRole">Chief Clinical Officer &amp; Partner</div>
+                <div class="lead-company" id="leadCompany">Apex Regional Dental Group (24 Clinics)</div>
+              </div>
+            </div>
+
+            <div class="lead-trigger">
+              <span class="lead-trigger-label">Active Intent Trigger (Webhook 1 &amp; 2 Fusion)</span>
+              <p class="lead-trigger-text" id="leadTriggerReason">
+                Organization initiated technographic migration from legacy Dentrix to cloud EHR. CCO Elena Vance downloaded HIPAA cloud integration brief. RFP actively circulating.
+              </p>
+            </div>
+
+            <div class="lead-contacts">
+              <div class="lead-contact-box">
+                <span class="lead-contact-label">Direct Email</span>
+                <span class="lead-contact-value" id="leadEmail">elena.vance@apexregionaldental.com</span>
+              </div>
+              <div class="lead-contact-box">
+                <span class="lead-contact-label">Direct Dial</span>
+                <span class="lead-contact-value" id="leadPhone" style="color: var(--color-cyan);">+1 (415) 892-4910</span>
+              </div>
+            </div>
+
+            <div class="lead-actions">
+              <button class="lead-btn-primary" onclick="handleLeadExport()">Export to CRM</button>
+              <button class="lead-btn-secondary" onclick="inspectGraphRag()">Inspect GraphRAG</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Progress HUD -->
+      <div class="progress-bar">
+        <span id="beatLabel">Beat 01 — The Organic Vision</span>
+        <span style="display: flex; align-items: center; gap: 6px;">
+          <span>Scroll to traverse</span>
+          <span id="scrollPct" class="progress-pct">0%</span>
+          <span>↓</span>
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
+  <!-- TAXONOMY EXPLORER                                                       -->
+  <!-- ======================================================================= -->
+  <section class="taxonomy-section">
+    <div class="taxonomy-header">
+      <span class="eyebrow" style="color: var(--color-rose);">Knowledge Graph Architecture</span>
+      <h2 class="headline" style="font-size: clamp(2rem, 3.2vw, 2.8rem); margin-bottom: 0.6rem;">
+        200 Curated Business Taxonomies.
+      </h2>
+      <p class="body-text">
+        SignalMind traverses multi-hop relationships between founder value propositions and active buying organizations across 12 primary industries.
+      </p>
+    </div>
+
+    <div class="taxonomy-grid">
+      <div class="taxonomy-card">
+        <span class="taxonomy-count" style="color: var(--color-rose);">20 Types</span>
+        <div class="taxonomy-title">Technology &amp; SaaS</div>
+        <p class="taxonomy-desc">Cloud EHR, AI Agencies, DevOps, Cybersecurity</p>
+      </div>
+      <div class="taxonomy-card">
+        <span class="taxonomy-count" style="color: var(--color-cyan);">20 Types</span>
+        <div class="taxonomy-title">Healthcare Clinics</div>
+        <p class="taxonomy-desc">Dental Clinics, MedSpas, Telehealth, Physical Therapy</p>
+      </div>
+      <div class="taxonomy-card">
+        <span class="taxonomy-count" style="color: #a78bfa;">20 Types</span>
+        <div class="taxonomy-title">Commercial Trades</div>
+        <p class="taxonomy-desc">Commercial Roofing, Solar, HVAC, General Contractors</p>
+      </div>
+      <div class="taxonomy-card">
+        <span class="taxonomy-count" style="color: var(--color-emerald);">20 Types</span>
+        <div class="taxonomy-title">Advisory &amp; Finance</div>
+        <p class="taxonomy-desc">Fractional CFO, Audit Preparation, M&amp;A Advisory</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
+  <!-- FOOTER                                                                  -->
+  <!-- ======================================================================= -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--color-emerald);"></span>
+        <span style="font-family: var(--font-serif); font-size: 0.9375rem; color: #fff;">SignalMind</span>
+        <span style="color: var(--color-text-tertiary);">|</span>
+        <span>AI Foundation Model for Autonomous B2B Leads</span>
+      </div>
+      <span>&copy; 2026 SignalMind Technologies Corp.</span>
+    </div>
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- JAVASCRIPT: THREE.JS 3D ASSET & SCROLL ORCHESTRATION                      -->
+  <!-- ======================================================================= -->
+  <script>
+    // =========================================================================
+    // 1. PRESET BUSINESS DATA
+    // =========================================================================
+    const presetData = {
+      dental: {
+        id: "dental-practice-clinic",
+        leadName: "Dr. Elena Vance, DDS",
+        leadRole: "Chief Clinical Officer & Partner",
+        leadCompany: "Apex Regional Dental Group (24 Clinics)",
+        ticketSize: "$48k ARR Tier",
+        leadInitials: "EV",
+        leadEmail: "elena.vance@apexregionaldental.com",
+        leadPhone: "+1 (415) 892-4910",
+        triggerReason: "Organization initiated technographic migration from legacy Dentrix to cloud EHR. CCO Elena Vance downloaded HIPAA cloud integration brief. RFP actively circulating.",
+        hop1: "User Vision: B2B SaaS", hop2: "Vendor Need: Cloud EHR", hop3: "Chief Clinical Officer"
+      },
+      roofing: {
+        id: "commercial-roofing-contractor",
+        leadName: "Marcus Sterling",
+        leadRole: "VP of Operations & Dispatch",
+        leadCompany: "Titan Commercial Roofing",
+        ticketSize: "$36k Contract",
+        leadInitials: "MS",
+        leadEmail: "m.sterling@titancommercialroofing.com",
+        leadPhone: "+1 (312) 749-3320",
+        triggerReason: "Job posting for 3 Dispatch Coordinators detected on LinkedIn. Expanding fleet by 14 trucks in Midwest region. High manual drone reporting friction.",
+        hop1: "User Vision: AI Dispatch Agency", hop2: "Vendor Need: Drone Automation", hop3: "VP of Operations"
+      },
+      cfo: {
+        id: "fractional-cfo-financial-advisory",
+        leadName: "Claire Beauchamp",
+        leadRole: "Founder & Chief Executive Officer",
+        leadCompany: "Synthetix Bio Cloud (Series A)",
+        ticketSize: "$8k / Mo Retainer",
+        leadInitials: "CB",
+        leadEmail: "claire@synthetixbio.io",
+        leadPhone: "+1 (212) 604-1892",
+        triggerReason: "SEC Form D filing detected $14.2M Series A equity financing. Mandated institutional audit within 90 days. Previous interim head departed.",
+        hop1: "User Vision: Fractional CFO", hop2: "Vendor Need: Runway Modeling", hop3: "Founder / CEO"
+      }
+    };
+
+    let activePresetKey = 'dental';
+
+    function selectPreset(key, evt) {
+      activePresetKey = key;
+      const data = presetData[key];
+      if (!data) return;
+
+      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+      if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+
+      document.getElementById('leadName').textContent = data.leadName;
+      document.getElementById('leadRole').textContent = data.leadRole;
+      document.getElementById('leadCompany').textContent = data.leadCompany;
+      document.getElementById('leadTicketSize').textContent = data.ticketSize;
+      document.getElementById('leadInitials').textContent = data.leadInitials;
+      document.getElementById('leadEmail').textContent = data.leadEmail;
+      document.getElementById('leadPhone').textContent = data.leadPhone;
+      document.getElementById('leadTriggerReason').textContent = data.triggerReason;
+    }
+
+    function handleLeadExport() {
+      const d = presetData[activePresetKey];
+      alert(`[SignalMind CRM Export]:\n\n✓ Lead: ${d.leadName}\n✓ Company: ${d.leadCompany}\n✓ Email: ${d.leadEmail}\n✓ Phone: ${d.leadPhone}\n\nExported with verified GraphRAG multi-hop metadata.`);
+    }
+
+    function inspectGraphRag() {
+      const d = presetData[activePresetKey];
+      alert(`[GraphRAG Inspection]:\n\n- Taxonomy: ${d.id}\n- Hop 1: ${d.hop1}\n- Hop 2: ${d.hop2}\n- Hop 3: ${d.hop3}\n- Intent Confidence: 99.4%\n- Continuous Webhooks Latency: 0.042ms`);
+    }
+
+    // =========================================================================
+    // 2. THREE.JS ENGINE SETUP
+    // =========================================================================
+    const canvas = document.getElementById('webgl-canvas');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(40, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 0.2, 7.8);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    function resizeCanvas() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const masterGroup = new THREE.Group();
+    scene.add(masterGroup);
+
+    // ---- Studio Chiaroscuro Lights ----
+    const keyLight = new THREE.DirectionalLight(0xfff5ee, 2.2);
+    keyLight.position.set(4, 5, 5);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xf43f5e, 2.8);
+    rimLight.position.set(-5, 2, -3);
+    scene.add(rimLight);
+
+    const cyanFillLight = new THREE.DirectionalLight(0x22d3ee, 0.85);
+    cyanFillLight.position.set(2, -4, -1);
+    scene.add(cyanFillLight);
+
+    const ambientLight = new THREE.AmbientLight(0xfff1f2, 0.55);
+    scene.add(ambientLight);
+
+    // Point Light inside the rose core (Botanical Subsurface Glow)
+    const corePointLight = new THREE.PointLight(0xff2255, 2.2, 4.0);
+    corePointLight.position.set(0, 0.4, 0);
+    masterGroup.add(corePointLight);
+
+    // =========================================================================
+    // 3. PARAMETRIC VOLUMETRIC BOTANICAL ROSE (Zero 2D Images, 100% Procedural)
+    // =========================================================================
+    const flowerGroup = new THREE.Group();
+    masterGroup.add(flowerGroup);
+
+    // Generates a true organic petal: teardrop contour + parabolic cupping + flared curled rim
+    function createRosePetalGeometry(width, height, cup, arch, curlBack) {
+      const segU = 16;
+      const segV = 18;
+      const geo = new THREE.BufferGeometry();
+      const positions = [];
+      const uvs = [];
+      const indices = [];
+
+      for (let iv = 0; iv <= segV; iv++) {
+        const v = iv / segV; // 0 at base, 1 at tip
+        // Teardrop profile: narrow base, wide middle, gently rounded tip
+        const profile = Math.sin(Math.pow(v, 0.68) * Math.PI) * (0.2 + 0.8 * Math.sqrt(v));
+        const halfW = (width * 0.5) * profile;
+
+        for (let iu = 0; iu <= segU; iu++) {
+          const u = (iu / segU) * 2.0 - 1.0; // -1 to +1
+          
+          const x = u * halfW;
+          const y = v * height;
+
+          // Parabolic cupping across width (hollow shell)
+          const cupFactor = -(u * u) * cup * Math.sin(v * Math.PI * 0.85);
+
+          // Forward arch along the petal height
+          const archFactor = Math.sin(v * Math.PI * 0.8) * arch;
+
+          // Backward roll / curl at the tip
+          const curlFactor = (v > 0.62) ? -Math.pow((v - 0.62) / 0.38, 2.0) * curlBack : 0.0;
+
+          // Delicate edge flutter
+          const flutter = Math.sin(u * 9.0) * 0.02 * (v * v);
+
+          const z = cupFactor + archFactor + curlFactor + flutter;
+
+          positions.push(x, y, z);
+          uvs.push((u + 1.0) * 0.5, v);
+        }
+      }
+
+      for (let iv = 0; iv < segV; iv++) {
+        for (let iu = 0; iu < segU; iu++) {
+          const a = iv * (segU + 1) + iu;
+          const b = (iv + 1) * (segU + 1) + iu;
+          const c = (iv + 1) * (segU + 1) + (iu + 1);
+          const d = iv * (segU + 1) + (iu + 1);
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+
+      geo.setIndex(indices);
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.computeVertexNormals();
+      return geo;
+    }
+
+    const petalMeshes = [];
+    const TOTAL_PETALS = 58;
+
+    // Build the petals using the Golden Angle (137.5°) in concentric opening layers
+    for (let p = 0; p < TOTAL_PETALS; p++) {
+      const u = p / TOTAL_PETALS;
+      const angle = p * 2.399963; // Golden angle
+
+      let pWidth, pHeight, pCup, pArch, pCurl, pRadius, pTilt, pColor, pEmissive;
+
+      // Layer 1: Core Bud (Tightly wrapped, deep velvet crimson)
+      if (p < 10) {
+        pWidth = 0.42 + p * 0.02;
+        pHeight = 0.65 + p * 0.03;
+        pCup = 0.28;
+        pArch = 0.12;
+        pCurl = 0.05;
+        pRadius = 0.06 + p * 0.02;
+        pTilt = 0.12 + p * 0.02;
+        pColor = '#700827';
+        pEmissive = 0.35;
+      }
+      // Layer 2: Inner Blooming Cup (Spiraling outwards, rich crimson)
+      else if (p < 24) {
+        const t = (p - 10) / 14;
+        pWidth = 0.62 + t * 0.2;
+        pHeight = 0.85 + t * 0.15;
+        pCup = 0.32;
+        pArch = 0.20;
+        pCurl = 0.15;
+        pRadius = 0.26 + t * 0.32;
+        pTilt = 0.32 + t * 0.25;
+        pColor = '#9f1239';
+        pEmissive = 0.25;
+      }
+      // Layer 3: Mid Petals (Voluptuous, vivid rose)
+      else if (p < 42) {
+        const t = (p - 24) / 18;
+        pWidth = 0.85 + t * 0.25;
+        pHeight = 1.0 + t * 0.2;
+        pCup = 0.36;
+        pArch = 0.26;
+        pCurl = 0.35;
+        pRadius = 0.6 + t * 0.45;
+        pTilt = 0.6 + t * 0.25;
+        pColor = '#e11d48';
+        pEmissive = 0.18;
+      }
+      // Layer 4: Guard Petals (Wide open, flared curled tips, blush rose)
+      else {
+        const t = (p - 42) / 16;
+        pWidth = 1.15 + t * 0.25;
+        pHeight = 1.25 + t * 0.15;
+        pCup = 0.38;
+        pArch = 0.30;
+        pCurl = 0.6;
+        pRadius = 1.08 + t * 0.45;
+        pTilt = 0.88 + t * 0.22;
+        pColor = '#fb7185';
+        pEmissive = 0.12;
+      }
+
+      const geo = createRosePetalGeometry(pWidth, pHeight, pCup, pArch, pCurl);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color(pColor),
+        emissive: new THREE.Color(pColor),
+        emissiveIntensity: pEmissive,
+        roughness: 0.32,
+        metalness: 0.04,
+        clearcoat: 0.7,
+        clearcoatRoughness: 0.22,
+        transmission: 0.25,
+        transparent: true,
+        opacity: 0.96,
+        side: THREE.DoubleSide
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+
+      // Pivot group at rose center
+      const pivot = new THREE.Group();
+      pivot.rotation.y = angle;
+      pivot.position.y = 0.25 - u * 0.3;
+
+      mesh.position.set(0, 0, pRadius);
+      mesh.rotation.x = pTilt;
+
+      pivot.add(mesh);
+      flowerGroup.add(pivot);
+
+      // Tag each petal for horizontal glitch slice dissection (Beat 2)
+      const sliceBand = p % 4; // 4 alternating horizontal slice planes
+      mesh.userData = {
+        pivot: pivot,
+        origMeshX: mesh.position.x,
+        origMeshZ: mesh.position.z,
+        sliceBand: sliceBand,
+        dissectDirection: (sliceBand % 2 === 0 ? 1 : -1) * (0.8 + Math.random() * 0.6),
+        origColor: new THREE.Color(pColor)
+      };
+
+      petalMeshes.push(mesh);
+    }
+
+    // ---- Green Calyx Sepals (Hugging the flower base) ----
+    const sepalMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.5, side: THREE.DoubleSide });
+    for (let s = 0; s < 5; s++) {
+      const sAngle = s * (Math.PI * 2 / 5);
+      const sGeo = createRosePetalGeometry(0.4, 0.85, 0.2, 0.15, -0.2);
+      const sMesh = new THREE.Mesh(sGeo, sepalMat);
+      const sPivot = new THREE.Group();
+      sPivot.rotation.y = sAngle;
+      sPivot.position.y = -0.15;
+      sMesh.position.set(0, 0, 0.75);
+      sMesh.rotation.x = 1.1;
+      sPivot.add(sMesh);
+      flowerGroup.add(sPivot);
+    }
+
+    // ---- Organic Curving Stem ----
+    const stemCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0.1, 0.0),
+      new THREE.Vector3(0.05, -0.6, 0.02),
+      new THREE.Vector3(-0.06, -1.5, 0.01),
+      new THREE.Vector3(0.04, -2.6, -0.02)
+    ]);
+    const stemGeo = new THREE.TubeGeometry(stemCurve, 36, 0.06, 10, false);
+    const stemMat = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.55 });
+    const stemMesh = new THREE.Mesh(stemGeo, stemMat);
+    flowerGroup.add(stemMesh);
+
+    // Thorns
+    const thornGeo = new THREE.ConeGeometry(0.035, 0.14, 5);
+    const thornMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.5 });
+    [[-0.07, -0.8, 0.04, 0.9], [0.08, -1.3, -0.02, -0.9], [-0.06, -1.9, 0.02, 0.85]].forEach(pos => {
+      const thorn = new THREE.Mesh(thornGeo, thornMat);
+      thorn.position.set(pos[0], pos[1], pos[2]);
+      thorn.rotation.z = pos[3];
+      flowerGroup.add(thorn);
+    });
+
+    // Compound Rose Leaves (Serrated oval leaflets)
+    function createCompoundLeaf(x, y, z, rotX, rotY, rotZ) {
+      const leafGroup = new THREE.Group();
+      leafGroup.position.set(x, y, z);
+      leafGroup.rotation.set(rotX, rotY, rotZ);
+
+      const leafGeo = new THREE.BufferGeometry();
+      const lPos = [];
+      const lInd = [];
+      for (let iv = 0; iv <= 10; iv++) {
+        const v = iv / 10;
+        const w = Math.sin(v * Math.PI) * 0.28;
+        for (let iu = 0; iu <= 6; iu++) {
+          const u = (iu / 6) * 2 - 1;
+          const lx = u * w;
+          const ly = v * 0.7;
+          const lz = -Math.abs(u) * 0.08 + Math.sin(v * Math.PI) * 0.04;
+          lPos.push(lx, ly, lz);
+        }
+      }
+      for (let iv = 0; iv < 10; iv++) {
+        for (let iu = 0; iu < 6; iu++) {
+          const a = iv * 7 + iu;
+          const b = (iv + 1) * 7 + iu;
+          const c = (iv + 1) * 7 + (iu + 1);
+          const d = iv * 7 + (iu + 1);
+          lInd.push(a, b, d);
+          lInd.push(b, c, d);
+        }
+      }
+      leafGeo.setIndex(lInd);
+      leafGeo.setAttribute('position', new THREE.Float32BufferAttribute(lPos, 3));
+      leafGeo.computeVertexNormals();
+
+      const lMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.42, side: THREE.DoubleSide });
+      const mainLeaf = new THREE.Mesh(leafGeo, lMat);
+      leafGroup.add(mainLeaf);
+
+      // Side leaflets
+      const side1 = new THREE.Mesh(leafGeo, lMat);
+      side1.scale.set(0.7, 0.7, 0.7);
+      side1.position.set(0.2, 0.15, 0);
+      side1.rotation.z = -0.55;
+      leafGroup.add(side1);
+
+      const side2 = new THREE.Mesh(leafGeo, lMat);
+      side2.scale.set(0.7, 0.7, 0.7);
+      side2.position.set(-0.2, 0.15, 0);
+      side2.rotation.z = 0.55;
+      leafGroup.add(side2);
+
+      flowerGroup.add(leafGroup);
+      return leafGroup;
+    }
+
+    const leafBranch1 = createCompoundLeaf(0.4, -0.6, 0.1, 0.3, 0.3, -0.65);
+    const leafBranch2 = createCompoundLeaf(-0.45, -1.4, -0.05, -0.2, -0.4, 0.75);
+
+    // =========================================================================
+    // 4. BEAT 2: GLITCH DISSECTION LASER FRAMES
+    // =========================================================================
+    const sliceFramesGroup = new THREE.Group();
+    masterGroup.add(sliceFramesGroup);
+
+    const sliceFrames = [];
+    for (let f = 0; f < 5; f++) {
+      const boxGeo = new THREE.BoxGeometry(3.6, 0.12, 1.4);
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: (f % 2 === 0 ? 0x22d3ee : 0xfb7185),
+        transparent: true,
+        opacity: 0.0
+      });
+      const frame = new THREE.LineSegments(edges, lineMat);
+      frame.position.y = 1.2 - f * 0.45;
+      sliceFramesGroup.add(frame);
+      sliceFrames.push(frame);
+    }
+
+    // =========================================================================
+    // 5. BEAT 3: DUAL FOURIER WAVEFORM TELEMETRY (Webhook 1 & 2)
+    // =========================================================================
+    const signalGroup = new THREE.Group();
+    masterGroup.add(signalGroup);
+
+    function createTelemetryRibbon(colorHex) {
+      const geo = new THREE.PlaneGeometry(8.0, 0.22, 100, 2);
+      const mat = new THREE.MeshBasicMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: 0.0,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+      return new THREE.Mesh(geo, mat);
+    }
+
+    const webhook1Ribbon = createTelemetryRibbon(0x22d3ee); // Webhook 1 Cyan
+    const webhook2Ribbon = createTelemetryRibbon(0xfb7185); // Webhook 2 Rose
+    signalGroup.add(webhook1Ribbon);
+    signalGroup.add(webhook2Ribbon);
+
+    // 80 Glowing Data Pulse Beads running along the waves
+    const beadGeo = new THREE.SphereGeometry(0.045, 8, 8);
+    const beadMat1 = new THREE.MeshBasicMaterial({ color: 0x22d3ee });
+    const beadMat2 = new THREE.MeshBasicMaterial({ color: 0xfb7185 });
+    const signalBeads = [];
+    for (let b = 0; b < 60; b++) {
+      const isCyan = b % 2 === 0;
+      const bead = new THREE.Mesh(beadGeo, isCyan ? beadMat1 : beadMat2);
+      bead.userData = { offset: b / 60, isCyan: isCyan };
+      signalGroup.add(bead);
+      signalBeads.push(bead);
+    }
+
+    // =========================================================================
+    // 6. BEAT 4: 3D HOLOGRAPHIC GRAPHRAG KNOWLEDGE NODE
+    // =========================================================================
+    const leadHoloGroup = new THREE.Group();
+    masterGroup.add(leadHoloGroup);
+
+    // Core Decision-Maker Sphere
+    const coreSphereGeo = new THREE.SphereGeometry(0.55, 24, 24);
+    const coreSphereMat = new THREE.MeshStandardMaterial({
+      color: 0x34d399,
+      emissive: 0x059669,
+      emissiveIntensity: 0.5,
+      roughness: 0.2,
+      metalness: 0.8
+    });
+    const coreSphere = new THREE.Mesh(coreSphereGeo, coreSphereMat);
+    leadHoloGroup.add(coreSphere);
+
+    // 3 Concentric Multi-Hop Orbital Rings
+    function createHoloRing(radius, colorHex) {
+      const ringGeo = new THREE.RingGeometry(radius - 0.02, radius + 0.02, 64);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: colorHex,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending
+      });
+      return new THREE.Mesh(ringGeo, ringMat);
+    }
+
+    const ring1 = createHoloRing(1.2, 0x22d3ee); // Hop 1: Vision
+    const ring2 = createHoloRing(1.8, 0xfb7185); // Hop 2: Need
+    const ring3 = createHoloRing(2.4, 0x34d399); // Hop 3: Decision Maker
+    leadHoloGroup.add(ring1);
+    leadHoloGroup.add(ring2);
+    leadHoloGroup.add(ring3);
+
+    // Orbiting Pulse Beads
+    const orbitBeads = [];
+    for (let o = 0; o < 12; o++) {
+      const ob = new THREE.Mesh(beadGeo, beadMat1);
+      ob.userData = { ringIdx: o % 3, angleOffset: (o / 12) * Math.PI * 2 };
+      leadHoloGroup.add(ob);
+      orbitBeads.push(ob);
+    }
+    leadHoloGroup.visible = false;
+
+    // =========================================================================
+    // 7. 12,000 PARTICLE TELEMETRY CONSTELLATION
+    // =========================================================================
+    const PARTICLE_COUNT = 12000;
+    const pGeo = new THREE.BufferGeometry();
+    const pPositions = new Float32Array(PARTICLE_COUNT * 3);
+    const pColors = new Float32Array(PARTICLE_COUNT * 3);
+    const pSizes = new Float32Array(PARTICLE_COUNT);
+
+    const cCyan = new THREE.Color('#22d3ee');
+    const cRose = new THREE.Color('#fb7185');
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      const phi = Math.random() * Math.PI * 2;
+      const theta = Math.acos(Math.random() * 2 - 1);
+      const r = 0.5 + Math.pow(Math.random(), 0.6) * 3.2;
+
+      pPositions[i3]     = r * Math.sin(theta) * Math.cos(phi);
+      pPositions[i3 + 1] = r * Math.sin(theta) * Math.sin(phi) + 0.2;
+      pPositions[i3 + 2] = r * Math.cos(theta);
+
+      const col = (i % 3 === 0) ? cCyan : cRose;
+      pColors[i3]     = col.r;
+      pColors[i3 + 1] = col.g;
+      pColors[i3 + 2] = col.b;
+      pSizes[i] = Math.random() * 0.1 + 0.05;
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    pGeo.setAttribute('aColor', new THREE.BufferAttribute(pColors, 3));
+    pGeo.setAttribute('aSize', new THREE.BufferAttribute(pSizes, 1));
+
+    const particleMat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uProgress: { value: 0.0 },
+        uTime: { value: 0.0 }
+      },
+      vertexShader: `
+        attribute vec3 aColor;
+        attribute float aSize;
+        uniform float uProgress;
+        uniform float uTime;
+        varying vec3 vColor;
+        varying float vAlpha;
+
+        void main() {
+          vColor = aColor;
+          vec3 pos = position;
+
+          // Swirling botanical vortex
+          float angle = uTime * 0.35 + length(pos.xz) * 0.5;
+          float cosA = cos(angle);
+          float sinA = sin(angle);
+          pos.x = pos.x * cosA - pos.z * sinA;
+          pos.z = pos.x * sinA + pos.z * cosA;
+          pos.y += sin(uTime * 1.5 + pos.x) * 0.1;
+
+          if (uProgress >= 0.25 && uProgress < 0.50) {
+            float t = (uProgress - 0.25) / 0.25;
+            pos.x += sin(uTime * 20.0 + pos.y * 10.0) * 0.3 * t;
+          }
+
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = aSize * (110.0 / -mv.z);
+          vAlpha = smoothstep(14.0, 3.5, -mv.z);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vAlpha;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float glow = pow(1.0 - smoothstep(0.0, 0.5, d), 1.8);
+          gl_FragColor = vec4(vColor, glow * vAlpha * 0.75);
+        }
+      `
+    });
+
+    const particles = new THREE.Points(pGeo, particleMat);
+    masterGroup.add(particles);
+
+    // Mouse Tracking for Parallax
+    const mouse = new THREE.Vector2();
+    window.addEventListener('mousemove', e => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    // =========================================================================
+    // 8. SCROLL STORY BEAT ORCHESTRATOR
+    // =========================================================================
+    const scrollStage = document.getElementById('scroll-stage');
+    const beats = [
+      document.getElementById('beat-1'),
+      document.getElementById('beat-2'),
+      document.getElementById('beat-3'),
+      document.getElementById('beat-4')
+    ];
+    const beatLabels = [
+      'Beat 01 — The Organic Vision',
+      'Beat 02 — Intent Dissection',
+      'Beat 03 — Dual-Channel Telemetry',
+      'Beat 04 — Verified Decision-Maker'
+    ];
+    const telemetryStatus = document.getElementById('telemetryStatus');
+    const beatLabelEl = document.getElementById('beatLabel');
+    const scrollPctEl = document.getElementById('scrollPct');
+
+    let targetProgress = 0;
+    let smoothProgress = 0;
+
+    window.addEventListener('scroll', () => {
+      if (!scrollStage) return;
+      const rect = scrollStage.getBoundingClientRect();
+      const total = scrollStage.offsetHeight - window.innerHeight;
+      targetProgress = Math.max(0, Math.min(1, -rect.top / total));
+    }, { passive: true });
+
+    const clock = new THREE.Clock();
+
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
+
+      const t = clock.getElapsedTime();
+      smoothProgress += (targetProgress - smoothProgress) * 0.085;
+      particleMat.uniforms.uProgress.value = smoothProgress;
+      particleMat.uniforms.uTime.value = t;
+
+      // Mouse Parallax on Right Scene
+      masterGroup.rotation.y = Math.sin(t * 0.2) * 0.06 + mouse.x * 0.12;
+      masterGroup.rotation.x = Math.cos(t * 0.18) * 0.04 - mouse.y * 0.08;
+
+      // -----------------------------------------------------------------------
+      // BEAT TRANSITIONS IN 3D
+      // -----------------------------------------------------------------------
+
+      // Beat 1: The Organic Vision (0.00 – 0.25)
+      if (smoothProgress < 0.25) {
+        flowerGroup.visible = true;
+        signalGroup.visible = false;
+        leadHoloGroup.visible = false;
+        sliceFramesGroup.visible = false;
+
+        const sub = smoothProgress / 0.25;
+        flowerGroup.rotation.y = sub * Math.PI * 0.7;
+
+        petalMeshes.forEach(mesh => {
+          mesh.position.x = mesh.userData.origMeshX;
+          mesh.position.z = mesh.userData.origMeshZ;
+          mesh.material.color.copy(mesh.userData.origColor);
+          mesh.material.opacity = 0.96;
+        });
+
+        stemMesh.visible = true;
+        leafBranch1.visible = true;
+        leafBranch2.visible = true;
+      }
+      // Beat 2: Intent Dissection (0.25 – 0.50) — Glitch Shift
+      else if (smoothProgress >= 0.25 && smoothProgress < 0.50) {
+        flowerGroup.visible = true;
+        signalGroup.visible = false;
+        leadHoloGroup.visible = false;
+        sliceFramesGroup.visible = true;
+
+        const sub = (smoothProgress - 0.25) / 0.25;
+        const ease = sub * sub * (3.0 - 2.0 * sub);
+
+        petalMeshes.forEach(mesh => {
+          const shiftX = mesh.userData.dissectDirection * ease * 1.5;
+          mesh.position.x = mesh.userData.origMeshX + shiftX;
+
+          // Chromatic shift: alternate bands glow cyan / magenta
+          if (mesh.userData.sliceBand % 2 === 0) {
+            mesh.material.color.lerp(new THREE.Color('#22d3ee'), ease * 0.4);
+          } else {
+            mesh.material.color.lerp(new THREE.Color('#fb7185'), ease * 0.4);
+          }
+          mesh.material.opacity = 0.96 - ease * 0.25;
+        });
+
+        stemMesh.visible = ease < 0.6;
+        leafBranch1.visible = ease < 0.4;
+        leafBranch2.visible = ease < 0.4;
+
+        sliceFrames.forEach((frame, idx) => {
+          frame.material.opacity = Math.min(0.65, ease * 0.85);
+          frame.position.x = ((idx % 2 === 0 ? 1 : -1) * 0.6) * ease;
+        });
+      }
+      // Beat 3: Continuous Signals (0.50 – 0.75) — Dual Waveforms
+      else if (smoothProgress >= 0.50 && smoothProgress < 0.75) {
+        flowerGroup.visible = false;
+        signalGroup.visible = true;
+        leadHoloGroup.visible = false;
+        sliceFramesGroup.visible = false;
+
+        const sub = (smoothProgress - 0.50) / 0.25;
+        webhook1Ribbon.material.opacity = Math.min(0.85, sub * 1.6);
+        webhook2Ribbon.material.opacity = Math.min(0.85, sub * 1.6);
+
+        // Modulate Waveforms
+        const p1 = webhook1Ribbon.geometry.attributes.position;
+        const p2 = webhook2Ribbon.geometry.attributes.position;
+        for (let i = 0; i < p1.count; i++) {
+          const x = p1.getX(i);
+          p1.setY(i, Math.sin(x * 1.5 + t * 4.2) * 0.85 + 0.5);
+          p2.setY(i, -Math.cos(x * 1.3 + t * 3.8) * 0.8 - 0.4);
+        }
+        p1.needsUpdate = true;
+        p2.needsUpdate = true;
+
+        // Animate Data Pulse Beads along waves
+        signalBeads.forEach(bead => {
+          const prog = (bead.userData.offset + t * 0.15) % 1.0;
+          const bx = (prog * 2.0 - 1.0) * 3.8;
+          const by = bead.userData.isCyan
+            ? (Math.sin(bx * 1.5 + t * 4.2) * 0.85 + 0.5)
+            : (-Math.cos(bx * 1.3 + t * 3.8) * 0.8 - 0.4);
+          bead.position.set(bx, by, 0.05);
+        });
+      }
+      // Beat 4: Compounding Results & Verified Lead (0.75 – 1.00) — Holographic Graph Node
+      else {
+        flowerGroup.visible = false;
+        signalGroup.visible = false;
+        leadHoloGroup.visible = true;
+        sliceFramesGroup.visible = false;
+
+        const sub = (smoothProgress - 0.75) / 0.25;
+        const ease = sub * sub * (3.0 - 2.0 * sub);
+
+        ring1.material.opacity = Math.min(0.6, ease * 0.8);
+        ring2.material.opacity = Math.min(0.5, ease * 0.7);
+        ring3.material.opacity = Math.min(0.4, ease * 0.6);
+
+        // Rotate holographic rings at different speeds
+        ring1.rotation.z = t * 0.4;
+        ring1.rotation.x = Math.PI * 0.35 + Math.sin(t * 0.3) * 0.1;
+
+        ring2.rotation.z = -t * 0.3;
+        ring2.rotation.y = Math.PI * 0.25 + Math.cos(t * 0.25) * 0.1;
+
+        ring3.rotation.z = t * 0.2;
+        ring3.rotation.x = Math.PI * 0.15;
+
+        // Core sphere breathing pulse
+        const pulseScale = 1.0 + Math.sin(t * 2.5) * 0.06;
+        coreSphere.scale.set(pulseScale, pulseScale, pulseScale);
+
+        // Orbit beads
+        orbitBeads.forEach(ob => {
+          const r = [1.2, 1.8, 2.4][ob.userData.ringIdx];
+          const speed = [0.6, -0.4, 0.3][ob.userData.ringIdx];
+          const curA = ob.userData.angleOffset + t * speed;
+          ob.position.set(Math.cos(curA) * r, Math.sin(curA) * r * 0.6, Math.sin(curA) * 0.4);
+        });
+      }
+
+      updateUI(smoothProgress);
+      resizeCanvas();
+      renderer.render(scene, camera);
+    }
+    renderLoop();
+
+    // =========================================================================
+    // 9. UI ORCHESTRATION & STATE MANAGEMENT
+    // =========================================================================
+    function updateUI(p) {
+      const pct = Math.round(p * 100);
+      if (scrollPctEl) scrollPctEl.textContent = `${pct}%`;
+
+      let active = 0;
+      if (p >= 0.75) active = 3;
+      else if (p >= 0.50) active = 2;
+      else if (p >= 0.25) active = 1;
+
+      // Update visible beat layer
+      beats.forEach((beat, i) => {
+        if (i === active) {
+          beat.classList.add('visible');
+        } else {
+          beat.classList.remove('visible');
+        }
+      });
+
+      // Update navbar indicators
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`navStage-${i + 1}`);
+        if (btn) {
+          if (i === active) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+      }
+
+      if (beatLabelEl) beatLabelEl.textContent = beatLabels[active];
+      if (telemetryStatus) {
+        const statuses = [
+          "BEAT 01 // THE ORGANIC FOUNDER VISION",
+          "BEAT 02 // INTENT VECTORS & TAXONOMY DISSECTION",
+          "BEAT 03 // CONTINUOUS DUAL-CHANNEL TELEMETRY",
+          "BEAT 04 // VERIFIED DECISION-MAKER READY"
+        ];
+        telemetryStatus.textContent = statuses[active];
+      }
+    }
+
+    function jumpToStage(num) {
+      if (!scrollStage) return;
+      const top = scrollStage.offsetTop;
+      const h = scrollStage.offsetHeight - window.innerHeight;
+      const pct = [0.04, 0.32, 0.60, 0.88][num - 1];
+      window.scrollTo({ top: top + h * pct, behavior: 'smooth' });
+    }
+
+    selectPreset('dental');
+  </script>
+</body>
+</html>

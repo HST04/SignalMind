@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignalMind — AI-Driven Hyper-Targeted B2B Lead Intelligence</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Plus Jakarta Sans and JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              DEFAULT: '#08080a',
+              card: '#0f0f14',
+              surface: '#13131a',
+              border: 'rgba(255, 255, 255, 0.08)',
+            },
+            rosepetal: {
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              glow: 'rgba(251, 113, 133, 0.35)',
+            },
+            signal: {
+              cyan: '#22d3ee',
+              magenta: '#f43f5e',
+            }
+          },
+          letterSpacing: {
+            tighter: '-0.04em',
+            tightest: '-0.05em',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .liquid-glass {
+      background: rgba(18, 18, 24, 0.72);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+    
+    .liquid-glass-card {
+      background: linear-gradient(135deg, rgba(22, 22, 30, 0.6) 0%, rgba(13, 13, 18, 0.75) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .liquid-glass-card:hover {
+      border-color: rgba(251, 113, 133, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 0 25px rgba(251, 113, 133, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-btn-primary {
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.95) 0%, rgba(225, 29, 72, 0.95) 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px -4px rgba(244, 63, 94, 0.45);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .liquid-btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 12px 32px -4px rgba(244, 63, 94, 0.65);
+    }
+
+    .liquid-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+    }
+    .liquid-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    .text-apple-gradient {
+      background: linear-gradient(180deg, #FFFFFF 20%, #A1A1AA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-petal-gradient {
+      background: linear-gradient(135deg, #FFE4E6 0%, #FB7185 50%, #E11D48 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .chromatic-accent {
+      text-shadow: -1px 0 rgba(34, 211, 238, 0.4), 1px 0 rgba(244, 63, 94, 0.45);
+    }
+  </style>
+</head>
+<body class="bg-[#08080a] text-zinc-300 font-sans antialiased selection:bg-rose-500/30 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient Glow Background -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-[250px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-rose-500/15 via-purple-900/10 to-transparent blur-[130px] rounded-full"></div>
+    <div class="absolute top-[45%] -left-[200px] w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full"></div>
+    <div class="absolute top-[60%] -right-[200px] w-[600px] h-[600px] bg-rose-600/8 blur-[140px] rounded-full"></div>
+    <div class="absolute inset-0 scanlines opacity-40"></div>
+  </div>
+
+  <!-- FLOATING NAVIGATION BAR -->
+  <header class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-300">
+    <nav class="liquid-glass rounded-full px-5 py-2.5 flex items-center justify-between w-full max-w-5xl">
+      <!-- Logo + Brand -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center p-0.5 relative">
+          <div class="absolute inset-0 bg-gradient-to-tr from-rose-500/40 to-cyan-400/30 rounded-full blur-[2px]"></div>
+          <svg class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-105" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <path d="M50 18 C34 18 24 34 28 50 C31 63 39 76 50 82 C61 76 69 63 72 50 C76 34 66 18 50 18 Z" stroke="#fb7185" stroke-width="2.5" fill="rgba(251,113,133,0.12)"/>
+            <path d="M22 50 Q36 38 50 50 T78 50" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="3.5" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="font-semibold text-white tracking-tight text-sm font-sans">SignalMind</span>
+          <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">GraphRAG v2.0</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Items -->
+      <div class="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-400">
+        <a href="#taxonomy" class="hover:text-white transition-colors duration-200">200 Taxonomies</a>
+        <a href="#architecture" class="hover:text-white transition-colors duration-200">GraphRAG Pipeline</a>
+        <a href="#telemetry" class="hover:text-white transition-colors duration-200 flex items-center gap-1.5">
+          Live Telemetry
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+        </a>
+        <a href="/docs" target="_blank" class="hover:text-white transition-colors duration-200">API Docs</a>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex items-center gap-3">
+        <a href="/app" class="liquid-btn-primary text-xs font-semibold text-white px-4 py-2 rounded-full flex items-center gap-1.5 tracking-tight group">
+          <span>Launch Lead Engine</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main class="relative z-10 pt-36 pb-20">
+    <section class="max-w-6xl mx-auto px-6 text-center">
+      
+      <!-- Top Intelligence Pill -->
+      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-white/10 text-xs text-zinc-300 mb-8 backdrop-blur-md shadow-inner">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+        </span>
+        <span class="font-mono text-[11px] text-zinc-400">GRAPHRAG LEAD INTELLIGENCE</span>
+        <span class="w-1 h-1 rounded-full bg-zinc-600"></span>
+        <span class="text-rose-300 font-medium">200 Curated Taxonomy Nodes Online</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tightest leading-[1.08] max-w-4xl mx-auto mb-6 text-apple-gradient">
+        Describe Your Business Vision.<br>
+        <span class="text-petal-gradient chromatic-accent">Synthesize Verified B2B Leads.</span>
+      </h1>
+
+      <p class="text-base sm:text-xl text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed mb-10 tracking-tight">
+        No static databases or outdated scrapers. SignalMind translates your founder vision into structured buyer personas, traverses dynamic GraphRAG vendor relationships, and serves hyper-targeted leads with 1-click personalized AI outreach.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <a href="/app" class="liquid-btn-primary px-8 py-4 rounded-full text-sm font-semibold text-white tracking-tight flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg group">
+          <i data-lucide="sparkles" class="w-4 h-4 text-rose-200"></i>
+          <span>Enter Lead Intelligence App</span>
+          <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+        </a>
+        <a href="#architecture" class="liquid-btn-secondary px-6 py-4 rounded-full text-sm font-medium text-zinc-300 tracking-tight flex items-center gap-2 w-full sm:w-auto justify-center group">
+          <i data-lucide="git-fork" class="w-4 h-4 text-zinc-400 group-hover:text-rose-400 transition-colors"></i>
+          <span>View 6-Step Graph Pipeline</span>
+        </a>
+      </div>
+
+      <!-- Interactive Vision Prompt Simulation Card -->
+      <div class="relative mx-auto max-w-4xl rounded-3xl overflow-hidden liquid-glass-card p-6 border border-white/10 shadow-2xl text-left">
+        <div class="flex items-center justify-between pb-4 border-b border-white/10 text-xs font-mono text-zinc-400">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-zinc-300 font-semibold">Live Vision Classification Sandbox</span>
+          </div>
+          <span class="text-rose-300 font-medium text-[11px]">Instant Taxonomy Mapping</span>
+        </div>
+
+        <div class="mt-5 space-y-4">
+          <div class="p-4 rounded-2xl bg-black/50 border border-white/10 font-mono text-xs text-zinc-300 flex items-start gap-3">
+            <i data-lucide="message-square" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+            <div>
+              <div class="text-[10px] text-zinc-500 uppercase tracking-wider mb-1 font-sans font-semibold">Sample Founder Prompt:</div>
+              <div class="text-zinc-200">"I am building an automated AI call dispatching and appointment scheduling software for commercial roofing and HVAC contractors."</div>
+            </div>
+          </div>
+
+          <!-- Matched Tags Preview -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span class="text-[10px] text-zinc-500 block mb-1 font-mono uppercase">Taxonomy Niche</span>
+              <span class="text-rose-300 font-medium">Commercial Roofing Contractor</span>
+              <span class="text-[10px] text-zinc-400 block mt-0.5">Construction, Building & Trades</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span class="text-[10px] text-zinc-500 block mb-1 font-mono uppercase">Target Buyer Persona</span>
+              <span class="text-cyan-300 font-medium">VP of Operations / Facility Director</span>
+              <span class="text-[10px] text-zinc-400 block mt-0.5">High Intent Profile</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span class="text-[10px] text-zinc-500 block mb-1 font-mono uppercase">Resolved Vendor Need</span>
+              <span class="text-emerald-300 font-medium">Safety & Automated Dispatch</span>
+              <span class="text-[10px] text-zinc-400 block mt-0.5">Multi-hop Graph Match</span>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <a href="/app" class="liquid-btn-primary px-5 py-2.5 rounded-xl text-xs font-semibold text-white inline-flex items-center gap-1.5">
+              <span>Test Your Own Vision in App</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE TELEMETRY FEED (HOOKED TO REST API) -->
+    <section id="telemetry" class="max-w-5xl mx-auto px-6 py-16">
+      <div class="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/15 shadow-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+              <h3 class="text-lg font-bold text-white tracking-tight">Continuous Dual-Webhook Telemetry Feed</h3>
+            </div>
+            <p class="text-xs text-zinc-400 mt-1">Real-time market signals & contact enrichment stream feeding the GraphRAG engine</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="/app" class="liquid-btn-primary px-4 py-1.5 rounded-lg text-xs font-mono text-white flex items-center gap-1.5">
+              <i data-lucide="play" class="w-3 h-3"></i>
+              <span>LAUNCH APP</span>
+            </a>
+          </div>
+        </div>
+
+        <div id="telemetryList" class="font-mono text-xs divide-y divide-white/5 mt-4">
+          <!-- Populated dynamically via JS -->
+          <div class="py-3 text-zinc-500 text-center">Connecting to telemetry stream...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE & 6-STEP PIPELINE -->
+    <section id="architecture" class="max-w-6xl mx-auto px-6 py-20 border-t border-white/5">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-xs font-mono text-rose-300 uppercase tracking-wider block mb-2">GRAPHRAG SYSTEM ARCHITECTURE</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tightest mb-4">
+          The 6-Step Autonomous Lead Pipeline.
+        </h2>
+        <p class="text-zinc-400 text-sm sm:text-base">
+          From natural language founder vision to verified decision-maker contacts ready for outreach.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Step 1 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10">
+          <div class="text-rose-400 font-mono text-sm mb-3">STEP 01 // INTENT CLASSIFIER</div>
+          <h3 class="text-xl font-bold text-white mb-2">Natural Language Vision</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            User inputs their business concept in freeform English. The AI decomposes core intent, audience vectors, and market verticals.
+          </p>
+          <div class="text-xs font-mono text-zinc-300 bg-white/5 p-2.5 rounded-xl border border-white/5">
+            Groq Llama-3-70B + MiniLM Semantic Parser
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-rose-500/30 bg-gradient-to-b from-rose-950/20 to-transparent">
+          <div class="text-rose-300 font-mono text-sm mb-3">STEP 02 // TAXONOMY MAPPING</div>
+          <h3 class="text-xl font-bold text-white mb-2">200 Business Taxonomy</h3>
+          <p class="text-zinc-300 text-sm leading-relaxed mb-4">
+            Queries `business_types.json` across 12 industry categories to resolve primary niche, buyer personas, ticket sizes, and vendor needs.
+          </p>
+          <div class="text-xs font-mono text-rose-300 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
+            200 Verified Schema Nodes Loaded
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10">
+          <div class="text-cyan-400 font-mono text-sm mb-3">STEP 03 // GRAPHRAG TRAVERSAL</div>
+          <h3 class="text-xl font-bold text-white mb-2">Multi-Hop Traversal</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            Traverses Neo4j graph relationships: (:Business)-[:TARGETS]->(:BuyerPersona) and (:Business)-[:REQUIRES_VENDOR]->(:VendorNeed).
+          </p>
+          <div class="text-xs font-mono text-cyan-300 bg-cyan-500/10 p-2.5 rounded-xl border border-cyan-500/20">
+            Neo4j & In-Memory Graph Hybrid
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10">
+          <div class="text-zinc-400 font-mono text-sm mb-3">STEP 04 // WEBHOOK FUSION</div>
+          <h3 class="text-xl font-bold text-white mb-2">Dual Webhook Feeds</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            Pipes continuous market signals (hiring alerts, funding rounds) and lead enrichment (SMTP verification, deliverability scores).
+          </p>
+          <div class="text-xs font-mono text-zinc-300 bg-white/5 p-2.5 rounded-xl border border-white/5">
+            Real Webhook 1 & 2 Ingestion
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-emerald-500/30">
+          <div class="text-emerald-400 font-mono text-sm mb-3">STEP 05 // VECTOR SIMILARITY</div>
+          <h3 class="text-xl font-bold text-white mb-2">Hybrid Scoring Query</h3>
+          <p class="text-zinc-300 text-sm leading-relaxed mb-4">
+            Computes cosine similarity between founder intent embeddings and lead profile vectors, boosted by shared graph relationships.
+          </p>
+          <div class="text-xs font-mono text-emerald-300 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+            Ranked High-Probability Matches
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10">
+          <div class="text-rose-400 font-mono text-sm mb-3">STEP 06 // 1-CLICK OUTREACH</div>
+          <h3 class="text-xl font-bold text-white mb-2">AI Pitch & Export</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+            Generates personalized cold emails and LinkedIn InMail tailored to the lead's exact trigger signal and vendor need. Export to CSV & JSON.
+          </p>
+          <div class="text-xs font-mono text-zinc-300 bg-white/5 p-2.5 rounded-xl border border-white/5">
+            CSV / JSON Export + AI Copy
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 200 TAXONOMY SHOWCASE -->
+    <section id="taxonomy" class="max-w-6xl mx-auto px-6 py-20 border-t border-white/5">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-xs font-mono text-cyan-300 uppercase tracking-wider block mb-2">CURATED KNOWLEDGE GRAPH</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tightest mb-4">
+          200 Deep Business Taxonomies.
+        </h2>
+        <p class="text-zinc-400 text-sm sm:text-base">
+          Categorized across 12 core industry verticals with pre-mapped buyer personas and vendor requirements.
+        </p>
+      </div>
+
+      <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs font-mono">
+        <!-- Loaded via JS -->
+      </div>
+
+      <div class="text-center mt-12">
+        <a href="/app" class="liquid-btn-primary px-8 py-3.5 rounded-full text-xs font-semibold text-white tracking-tight inline-flex items-center gap-2">
+          <span>Search Taxonomies in Interactive App</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="max-w-4xl mx-auto px-6 py-24 text-center">
+      <div class="relative rounded-3xl p-10 sm:p-14 liquid-glass-card border border-rose-500/30 overflow-hidden shadow-[0_0_80px_rgba(251,113,133,0.12)]">
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-rose-500/20 blur-[100px] pointer-events-none rounded-full"></div>
+
+        <span class="inline-block px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-mono mb-6">
+          FULL WORKING PROTOTYPE ONLINE
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tightest mb-6">
+          Ready to experience hyper-targeted lead synthesis?
+        </h2>
+        <p class="text-zinc-300 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+          Input your business concept or try out presets for Dental Clinics, Commercial Roofing, Fractional Advisory, and SaaS.
+        </p>
+
+        <a href="/app" class="liquid-btn-primary px-9 py-4 rounded-full text-sm font-semibold text-white inline-flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Launch SignalMind App</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/5 py-12 relative z-10 text-xs text-zinc-500">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+          <span class="text-zinc-300 font-medium font-sans">SignalMind Intelligence Engine</span>
+        </div>
+        <span class="text-zinc-700">|</span>
+        <div class="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>SYSTEM READY</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="/app" class="hover:text-zinc-300 transition-colors">App Dashboard</a>
+        <a href="/docs" target="_blank" class="hover:text-zinc-300 transition-colors">API Specs</a>
+        <a href="/api/health" target="_blank" class="hover:text-zinc-300 transition-colors">Health Status</a>
+      </div>
+      <div class="font-mono text-[11px] text-zinc-600">
+        SignalMind GraphRAG Prototype v2.0
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Fetch and populate live telemetry feed
+    async function fetchTelemetry() {
+      try {
+        const res = await fetch('/api/telemetry/feed');
+        if (res.ok) {
+          const data = await res.json();
+          const list = document.getElementById('telemetryList');
+          if (data.live_stream && data.live_stream.length > 0) {
+            list.innerHTML = data.live_stream.slice(0, 5).map(evt => `
+              <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 hover:bg-white/[0.02] px-2 rounded-lg transition-colors">
+                <div class="flex items-center gap-3">
+                  <span class="text-zinc-500 text-[11px]">${evt.timestamp}</span>
+                  <span class="px-2 py-0.5 rounded ${evt.source.includes('Webhook 1') ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'} text-[10px] border">${evt.type}</span>
+                  <span class="text-zinc-200">${evt.company}: ${evt.details}</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px]">
+                  <span class="text-emerald-400">${evt.signal_strength}</span>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Telemetry load failed:', e);
+      }
+    }
+
+    // Fetch and populate categories grid
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/taxonomy/categories');
+        if (res.ok) {
+          const data = await res.json();
+          const grid = document.getElementById('categoriesGrid');
+          if (data.categories) {
+            grid.innerHTML = data.categories.map(c => `
+              <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-rose-500/30 transition-all">
+                <div class="text-rose-300 font-semibold text-xs mb-1">${c.category}</div>
+                <div class="text-zinc-500 text-[11px] mb-2">${c.count} Business Types</div>
+                <div class="text-[10px] text-zinc-400 leading-tight truncate">${c.sample_types.join(', ')}</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Categories load failed:', e);
+      }
+    }
+
+    fetchTelemetry();
+    fetchCategories();
+    setInterval(fetchTelemetry, 6000);
+  </script>
+</body>
+</html>

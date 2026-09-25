@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignalMind — Synthetic Intuition. Organic Precision.</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter and Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              DEFAULT: '#08080a',
+              card: '#0f0f14',
+              surface: '#13131a',
+              border: 'rgba(255, 255, 255, 0.08)',
+            },
+            rosepetal: {
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              glow: 'rgba(251, 113, 133, 0.35)',
+            },
+            signal: {
+              cyan: '#22d3ee',
+              magenta: '#f43f5e',
+            }
+          },
+          letterSpacing: {
+            tighter: '-0.04em',
+            tightest: '-0.05em',
+          },
+          animation: {
+            'pulse-subtle': 'pulseSubtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float-slow': 'floatSlow 7s ease-in-out infinite',
+            'scanline': 'scanline 8s linear infinite',
+            'glitch-subtle': 'glitchSubtle 3s infinite',
+          },
+          keyframes: {
+            pulseSubtle: {
+              '0%, 100%': { opacity: '0.9', transform: 'scale(1)' },
+              '50%': { opacity: '1', transform: 'scale(1.02)' },
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' },
+            },
+            scanline: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(1000%)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Apple Liquid Glass styling */
+    .liquid-glass {
+      background: rgba(18, 18, 24, 0.65);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+    
+    .liquid-glass-card {
+      background: linear-gradient(135deg, rgba(22, 22, 30, 0.55) 0%, rgba(13, 13, 18, 0.7) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .liquid-glass-card:hover {
+      border-color: rgba(251, 113, 133, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 0 25px rgba(251, 113, 133, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .liquid-btn-primary {
+      background: linear-gradient(180deg, rgba(251, 113, 133, 0.9) 0%, rgba(225, 29, 72, 0.95) 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px -4px rgba(244, 63, 94, 0.45);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .liquid-btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 12px 32px -4px rgba(244, 63, 94, 0.65);
+    }
+
+    .liquid-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+    }
+    .liquid-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    /* Subtle Scanline Overlay */
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Apple-style gradient text */
+    .text-apple-gradient {
+      background: linear-gradient(180deg, #FFFFFF 20%, #A1A1AA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-petal-gradient {
+      background: linear-gradient(135deg, #FFE4E6 0%, #FB7185 50%, #E11D48 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Chromatic Aberration Text Accent */
+    .chromatic-accent {
+      text-shadow: -1px 0 rgba(34, 211, 238, 0.4), 1px 0 rgba(244, 63, 94, 0.45);
+    }
+
+    /* Waveform Canvas & SVG styling */
+    .waveform-bar {
+      transition: height 0.25s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#08080a] text-zinc-300 font-sans antialiased selection:bg-rose-500/30 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient Glow & Subtle Grid Background -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-[250px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-rose-500/15 via-purple-900/10 to-transparent blur-[130px] rounded-full"></div>
+    <div class="absolute top-[45%] -left-[200px] w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full"></div>
+    <div class="absolute top-[60%] -right-[200px] w-[600px] h-[600px] bg-rose-600/8 blur-[140px] rounded-full"></div>
+    <!-- Scanline Subtle Grid Overlay -->
+    <div class="absolute inset-0 scanlines opacity-40"></div>
+  </div>
+
+  <!-- FLOATING LIQUID GLASS NAVIGATION BAR (Apple HIG compliant) -->
+  <header class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-300" id="navbar">
+    <nav class="liquid-glass rounded-full px-5 py-2.5 flex items-center justify-between w-full max-w-4xl">
+      <!-- Logo + Brand -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center p-0.5 relative">
+          <div class="absolute inset-0 bg-gradient-to-tr from-rose-500/40 to-cyan-400/30 rounded-full blur-[2px]"></div>
+          <svg class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-105" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <path d="M50 18 C34 18 24 34 28 50 C31 63 39 76 50 82 C61 76 69 63 72 50 C76 34 66 18 50 18 Z" stroke="#fb7185" stroke-width="2.5" fill="rgba(251,113,133,0.12)"/>
+            <path d="M22 50 Q36 38 50 50 T78 50" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="3.5" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="font-semibold text-white tracking-tight text-sm font-sans">SignalMind</span>
+          <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">OS 4.2</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Items -->
+      <div class="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-400">
+        <a href="#features" class="hover:text-white transition-colors duration-200">Features</a>
+        <a href="#architecture" class="hover:text-white transition-colors duration-200">Architecture</a>
+        <a href="#neural-signals" class="hover:text-white transition-colors duration-200 flex items-center gap-1.5">
+          Neural Signals
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+        </a>
+        <a href="#telemetry" class="hover:text-white transition-colors duration-200">Telemetry</a>
+        <a href="#pricing" class="hover:text-white transition-colors duration-200">Pricing</a>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex items-center gap-3">
+        <button class="liquid-btn-primary text-xs font-semibold text-white px-4 py-2 rounded-full flex items-center gap-1.5 tracking-tight group">
+          <span>Request Access</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5"></i>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main class="relative z-10 pt-36 pb-20">
+    <section class="max-w-6xl mx-auto px-6 text-center">
+      
+      <!-- Top Intelligence Pill -->
+      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-white/10 text-xs text-zinc-300 mb-8 backdrop-blur-md shadow-inner animate-float-slow">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+        </span>
+        <span class="font-mono text-[11px] text-zinc-400">GEN-4 NEURAL ENGINE</span>
+        <span class="w-1 h-1 rounded-full bg-zinc-600"></span>
+        <span class="text-rose-300 font-medium">Sub-millisecond Cognitive Sync</span>
+      </div>
+
+      <!-- Headline & Subtitle with Apple Tracking & Typography -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tightest leading-[1.08] max-w-4xl mx-auto mb-6 text-apple-gradient">
+        Synthetic Intuition.<br>
+        <span class="text-petal-gradient chromatic-accent">Organic Precision.</span>
+      </h1>
+
+      <p class="text-base sm:text-xl text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed mb-10 tracking-tight">
+        SignalMind decodes high-frequency market and cognitive signals through neural synthesis—bridging biological intuition with raw computational speed.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <a href="#demo" class="liquid-btn-primary px-7 py-3.5 rounded-full text-sm font-semibold text-white tracking-tight flex items-center gap-2 w-full sm:w-auto justify-center shadow-lg group">
+          <span>Initialize Neural Stream</span>
+          <i data-lucide="sparkles" class="w-4 h-4 text-rose-200"></i>
+        </a>
+        <a href="#architecture" class="liquid-btn-secondary px-6 py-3.5 rounded-full text-sm font-medium text-zinc-300 tracking-tight flex items-center gap-2 w-full sm:w-auto justify-center group">
+          <i data-lucide="cpu" class="w-4 h-4 text-zinc-400 group-hover:text-rose-400 transition-colors"></i>
+          <span>Explore Architecture</span>
+        </a>
+      </div>
+
+      <!-- HERO VISUAL: Organic Glitch Floral Artwork + Neural Telemetry Overlay -->
+      <div class="relative mx-auto max-w-5xl rounded-3xl overflow-hidden liquid-glass-card p-2 sm:p-3 border border-white/10 shadow-2xl">
+        <!-- Window Chrome / Apple Liquid Bar -->
+        <div class="flex items-center justify-between px-4 py-2 border-b border-white/5 text-xs text-zinc-400 font-mono">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+            <span class="ml-2 text-zinc-500 text-[11px]">telemetry.stream.neural_alpha // 0.082ms latency</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/40">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> LIVE 99.98%
+            </span>
+            <span class="text-zinc-500 hidden sm:inline">EPOCH 884,102</span>
+          </div>
+        </div>
+
+        <!-- Visual Art container -->
+        <div class="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-black flex items-center justify-center group">
+          <!-- The Organic Glitch Rose Artwork https://lh3.googleusercontent.com/aida-public/AB6AXuA678GnU2kAHHV3y713QuFQlaW0m5mgvl9gY9g-f3r0Sg8o-eLOzxCPewCKN1nSD1fHmmzPyOAmGPu_GdMOcexwkQgb7T90Y07d899YzkZzbqNj8a0rOVsI0b24WFLY641l0U-UeKxWEqhAE9Ikk1VaSGvxo3RMGJ3Ai25VDj7EpS0b5h1crrqwpk_tirxsSyWP7gKpdeak_QdSeqlclZUYt7cYBaIefkUs7DF2p5JPrtbVwxkDnMIbg5jf-fMy-Fr_Cyw4lAm_MODg -->
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA678GnU2kAHHV3y713QuFQlaW0m5mgvl9gY9g-f3r0Sg8o-eLOzxCPewCKN1nSD1fHmmzPyOAmGPu_GdMOcexwkQgb7T90Y07d899YzkZzbqNj8a0rOVsI0b24WFLY641l0U-UeKxWEqhAE9Ikk1VaSGvxo3RMGJ3Ai25VDj7EpS0b5h1crrqwpk_tirxsSyWP7gKpdeak_QdSeqlclZUYt7cYBaIefkUs7DF2p5JPrtbVwxkDnMIbg5jf-fMy-Fr_Cyw4lAm_MODg" 
+               alt="SignalMind Neural Glitch Rose Cybernetic Botanical" 
+               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] filter contrast-[1.05]" />
+
+          <!-- Real-Time HUD Overlay Elements (Apple Liquid Design) -->
+          <div class="absolute inset-0 bg-gradient-to-t from-obsidian-card via-transparent to-black/30 pointer-events-none"></div>
+
+          <!-- Glitch Scanline Tracker Indicator -->
+          <div class="absolute top-8 left-8 text-left pointer-events-none">
+            <div class="liquid-glass rounded-xl p-3.5 border border-white/10 max-w-xs text-xs backdrop-blur-xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-mono text-[10px] text-rose-300 uppercase tracking-wider">Organic Petal Drift</span>
+                <span class="font-mono text-[10px] text-cyan-400">Δ 0.043%</span>
+              </div>
+              <p class="text-zinc-200 text-xs font-medium leading-snug">Synaptic botanical dispersion detected across high-frequency order flows.</p>
+              <div class="mt-2.5 flex items-center gap-1.5">
+                <div class="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-cyan-400 to-rose-400 w-3/4 rounded-full"></div>
+                </div>
+                <span class="text-[10px] font-mono text-zinc-400">76%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Telemetry HUD Coordinates Pill -->
+          <div class="absolute bottom-6 left-6 right-6 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+            <div class="liquid-glass px-4 py-2 rounded-xl text-left border border-white/10">
+              <span class="text-[10px] uppercase font-mono text-zinc-400 block">Biological Synapse Matrix</span>
+              <span class="text-xs font-mono text-white font-medium">PETAL-NODE #092 // CHROMATIC SYNC ACTIVE</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="liquid-glass px-3 py-1.5 rounded-lg font-mono text-[11px] text-zinc-300 flex items-center gap-2">
+                <i data-lucide="activity" class="w-3.5 h-3.5 text-rose-400"></i>
+                <span>4.8 GHz NEURAL CLOCK</span>
+              </div>
+              <div class="liquid-glass px-3 py-1.5 rounded-lg font-mono text-[11px] text-cyan-300 flex items-center gap-2">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>0.14ms DISPERSION</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- METRICS & SIGNAL FIDELITY STRIP -->
+    <section class="max-w-5xl mx-auto px-6 py-16">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="p-4 rounded-2xl border border-white/5 bg-zinc-950/40">
+          <div class="text-2xl sm:text-3xl font-bold text-white font-mono tracking-tight text-apple-gradient">99.98%</div>
+          <div class="text-xs text-zinc-400 mt-1 uppercase font-mono tracking-wider">Signal Fidelity</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-white/5 bg-zinc-950/40">
+          <div class="text-2xl sm:text-3xl font-bold text-rose-300 font-mono tracking-tight">4.2x</div>
+          <div class="text-xs text-zinc-400 mt-1 uppercase font-mono tracking-wider">Convergence Speed</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-white/5 bg-zinc-950/40">
+          <div class="text-2xl sm:text-3xl font-bold text-cyan-300 font-mono tracking-tight">12M+</div>
+          <div class="text-xs text-zinc-400 mt-1 uppercase font-mono tracking-wider">Cognitive Events/s</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-white/5 bg-zinc-950/40">
+          <div class="text-2xl sm:text-3xl font-bold text-white font-mono tracking-tight text-apple-gradient">&lt; 0.8ms</div>
+          <div class="text-xs text-zinc-400 mt-1 uppercase font-mono tracking-wider">Global Execution</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE FEATURE BENTO BOX (Apple HIG Style) -->
+    <section id="features" class="max-w-6xl mx-auto px-6 py-16">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-mono mb-3">
+          CORE CAPABILITIES
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tightest mb-4">
+          Engineered for cognitive dominance.
+        </h2>
+        <p class="text-zinc-400 text-sm sm:text-base leading-relaxed">
+          Four interconnected intelligence modules that decompose raw noise into actionable intuition.
+        </p>
+      </div>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Bento Card 1: Neural Waveform Analysis (Large 2-col span) -->
+        <div class="md:col-span-2 liquid-glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between group">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                <i data-lucide="waves" class="w-5 h-5"></i>
+              </span>
+              <span class="font-mono text-xs text-zinc-500">MODULE // 01</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">Neural Waveform Analysis</h3>
+            <p class="text-zinc-400 text-sm max-w-lg mb-6 leading-relaxed">
+              Deconstructs asynchronous market murmurs into multi-layered Fourier harmonic waves, mapping emotional undercurrents before order books reflect them.
+            </p>
+          </div>
+
+          <!-- Interactive Waveform Visualizer Graphic -->
+          <div class="relative z-10 w-full bg-zinc-950/70 border border-white/5 rounded-2xl p-5 backdrop-blur-sm">
+            <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                <span>HARMONIC RESONANCE 142.8 Hz</span>
+              </div>
+              <span class="text-rose-400">AMPLITUDE +18.4 dB</span>
+            </div>
+            
+            <!-- Dynamic SVG Waveform -->
+            <div class="h-28 w-full flex items-end justify-between gap-1 pt-4" id="waveformContainer">
+              <!-- Render simulated audio bars with rose-to-cyan gradient -->
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[35%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[55%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[70%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[90%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[65%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[40%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[80%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[95%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[75%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[50%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[30%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[60%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[85%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[100%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-cyan-400 rounded-t-sm h-[45%]"></div>
+              <div class="waveform-bar flex-1 bg-gradient-to-t from-rose-500/30 to-rose-400 rounded-t-sm h-[65%]"></div>
+            </div>
+
+            <!-- Signal Stats line -->
+            <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-zinc-500">
+              <span>SCAN WINDOW: 500MS</span>
+              <span class="text-cyan-400">PHASE COHERENCE: OPTIMAL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Card 2: Organic Sentiment Synthesis (1-col span) -->
+        <div class="liquid-glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                <i data-lucide="flower-2" class="w-5 h-5"></i>
+              </span>
+              <span class="font-mono text-xs text-zinc-500">MODULE // 02</span>
+            </div>
+            <h3 class="text-xl font-bold text-white tracking-tight mb-2">Organic Sentiment</h3>
+            <p class="text-zinc-400 text-sm mb-6 leading-relaxed">
+              Glitch-petal dispersal modeling turns qualitative human discourse into quantitative vector gradients.
+            </p>
+          </div>
+
+          <!-- Petal Vector Node Diagram -->
+          <div class="bg-zinc-950/70 border border-white/5 rounded-2xl p-4 text-center">
+            <div class="relative py-3 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-full border border-rose-500/30 flex items-center justify-center bg-rose-500/5 animate-pulse-subtle">
+                <i data-lucide="atom" class="w-8 h-8 text-rose-400"></i>
+              </div>
+              <div class="absolute -top-1 -right-1 text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                +94.2% ROSE-VECTOR
+              </div>
+            </div>
+            <div class="font-mono text-xs text-zinc-300 mt-2">Discourse Valence: Hyper-Bullish</div>
+          </div>
+        </div>
+
+        <!-- Bento Card 3: Liquid Glass Latency Engine (1-col span) -->
+        <div class="liquid-glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+              </span>
+              <span class="font-mono text-xs text-zinc-500">MODULE // 03</span>
+            </div>
+            <h3 class="text-xl font-bold text-white tracking-tight mb-2">Liquid Latency Engine</h3>
+            <p class="text-zinc-400 text-sm mb-6 leading-relaxed">
+              Ultra-low latency kernel pipeline running in bare-metal memory across 34 edge points of presence.
+            </p>
+          </div>
+
+          <!-- Latency Gauge Badge -->
+          <div class="bg-zinc-950/70 border border-white/5 rounded-2xl p-5">
+            <div class="flex items-baseline justify-between">
+              <span class="text-3xl font-bold font-mono text-white tracking-tight">0.078</span>
+              <span class="text-xs font-mono text-rose-400 uppercase">Milliseconds</span>
+            </div>
+            <div class="w-full bg-white/5 h-2 rounded-full mt-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-emerald-400 via-cyan-400 to-rose-400 h-full w-[94%]"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-mono text-zinc-500 mt-2">
+              <span>ZERO MEMCPY</span>
+              <span>L1 CACHE LOCK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Card 4: Autonomous Telemetry Stream (2-col span) -->
+        <div class="md:col-span-2 liquid-glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col justify-between group">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <span class="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <i data-lucide="network" class="w-5 h-5"></i>
+              </span>
+              <span class="font-mono text-xs text-zinc-500">MODULE // 04</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">Autonomous Telemetry Stream</h3>
+            <p class="text-zinc-400 text-sm max-w-lg mb-6 leading-relaxed">
+              Continuous synaptic telemetry graphs track collective intent pulses, mapping macro inflection points 14 minutes prior to conventional indicator triggers.
+            </p>
+          </div>
+
+          <!-- Real-Time Intent Pulse Graph Mock -->
+          <div class="bg-zinc-950/70 border border-white/5 rounded-2xl p-5 backdrop-blur-sm">
+            <div class="flex items-center justify-between text-xs font-mono mb-4">
+              <span class="text-zinc-300">INTENT CONVERGENCE FLUX</span>
+              <span class="text-emerald-400">CONFIDENCE: 98.4%</span>
+            </div>
+            <!-- Pulse SVG Graph -->
+            <svg class="w-full h-20 overflow-visible" viewBox="0 0 600 80" fill="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="20" x2="600" y2="20" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3 3"/>
+              <line x1="0" y1="60" x2="600" y2="60" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3 3"/>
+              
+              <!-- Gradient fill area under curve -->
+              <defs>
+                <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fb7185" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#fb7185" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 65 Q 80 60 140 45 T 280 30 T 420 50 T 520 15 L 600 20 L 600 80 L 0 80 Z" fill="url(#curveGradient)" />
+              <path d="M0 65 Q 80 60 140 45 T 280 30 T 420 50 T 520 15 L 600 20" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M0 70 Q 100 68 180 55 T 320 40 T 460 30 T 600 25" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+              
+              <!-- Pulse Node Highlight -->
+              <circle cx="520" cy="15" r="4.5" fill="#fb7185" class="animate-ping"/>
+              <circle cx="520" cy="15" r="3.5" fill="#ffffff"/>
+            </svg>
+            <div class="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-2">
+              <span>T - 60 SEC</span>
+              <span class="text-rose-300 font-medium">TRIGGER HORIZON IDENTIFIED</span>
+              <span>LIVE CURRENT</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE & STEP-BY-STEP NEURAL PIPELINE SHOWCASE -->
+    <section id="architecture" class="max-w-6xl mx-auto px-6 py-20 border-t border-white/5">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-xs font-mono text-rose-300 uppercase tracking-wider block mb-2">NEURAL SYNTHESIS ENGINE</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tightest mb-4">
+          From ambient whisper to decisive execution.
+        </h2>
+        <p class="text-zinc-400 text-sm sm:text-base">
+          An end-to-end cognitive pipeline architected for institutions requiring millisecond clarity.
+        </p>
+      </div>
+
+      <!-- Step Cards (Apple Flow Style) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        
+        <!-- Step 1 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10 relative">
+          <div class="text-rose-400 font-mono text-sm mb-4">STAGE 01 // INGESTION</div>
+          <h3 class="text-xl font-bold text-white mb-3">Multimodal Signal Ingestion</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-6">
+            Pipes 84,000 global feeds simultaneously—dark pool order blocks, neural sentiment bursts, satellite telemetry, and biological reaction arrays.
+          </p>
+          <div class="flex items-center gap-2 text-xs font-mono text-zinc-300 bg-white/5 p-3 rounded-xl border border-white/5">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            <span>Zero-packet Loss Guarantee</span>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-rose-500/30 relative bg-gradient-to-b from-rose-950/20 to-transparent shadow-[0_0_40px_rgba(251,113,133,0.1)]">
+          <div class="inline-block px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-mono mb-4">
+            PROPRIETARY CORE
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Cognitive Petal Synthesis</h3>
+          <p class="text-zinc-300 text-sm leading-relaxed mb-6">
+            Nonlinear tensor decomposition separates intentional distortion from organic market impulse using bio-cybernetic matrix weights.
+          </p>
+          <div class="flex items-center gap-2 text-xs font-mono text-rose-300 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
+            <i data-lucide="sparkles" class="w-4 h-4 text-rose-400"></i>
+            <span>Biological Neural Mesh Active</span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="liquid-glass-card rounded-3xl p-8 border border-white/10 relative">
+          <div class="text-cyan-400 font-mono text-sm mb-4">STAGE 03 // DISPATCH</div>
+          <h3 class="text-xl font-bold text-white mb-3">Autonomous Action Vector</h3>
+          <p class="text-zinc-400 text-sm leading-relaxed mb-6">
+            Instantaneous dispatch via WebSocket, gRPC, and FIX protocols straight to institutional algorithmic execution gateways.
+          </p>
+          <div class="flex items-center gap-2 text-xs font-mono text-cyan-300 bg-cyan-500/10 p-3 rounded-xl border border-cyan-500/20">
+            <i data-lucide="send" class="w-4 h-4 text-cyan-400"></i>
+            <span>Sub-80 Microsecond Dispatch</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LIVE TERMINAL / SIGNAL FEED PREVIEW -->
+    <section id="neural-signals" class="max-w-5xl mx-auto px-6 py-12">
+      <div class="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/15 shadow-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+              <h3 class="text-lg font-bold text-white tracking-tight">SignalMind Neural Telemetry Feed</h3>
+            </div>
+            <p class="text-xs text-zinc-400 mt-1">Live synthetic intuition stream filtered at 100μs sampling resolution</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="liquid-btn-secondary px-3 py-1.5 rounded-lg text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+              <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+              <span>FILTER CHANNELS</span>
+            </button>
+            <button class="liquid-btn-primary px-3 py-1.5 rounded-lg text-xs font-mono text-white flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>EXPORT RAW CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Feed rows -->
+        <div class="font-mono text-xs divide-y divide-white/5 mt-4">
+          <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 hover:bg-white/[0.02] px-2 rounded-lg transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-zinc-500 text-[11px]">14:28:01.092</span>
+              <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] border border-rose-500/30">SIG-PETAL-7</span>
+              <span class="text-zinc-200">Asymmetric Liquidity Convergence detected on G10 Cross-Currency Pairs</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px]">
+              <span class="text-emerald-400">+99.4% CONF</span>
+              <span class="text-zinc-500">0.04ms</span>
+            </div>
+          </div>
+
+          <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 hover:bg-white/[0.02] px-2 rounded-lg transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-zinc-500 text-[11px]">14:28:00.841</span>
+              <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] border border-cyan-500/30">NEURO-DISPERSION</span>
+              <span class="text-zinc-200">Institutional intent pulse shifted +420bps before public orderbook placement</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px]">
+              <span class="text-emerald-400">+98.9% CONF</span>
+              <span class="text-zinc-500">0.09ms</span>
+            </div>
+          </div>
+
+          <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 hover:bg-white/[0.02] px-2 rounded-lg transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-zinc-500 text-[11px]">14:27:59.610</span>
+              <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[10px] border border-purple-500/30">CHROMATIC-SYNAPSE</span>
+              <span class="text-zinc-200">Glitch signature absorbed; automated anti-spoofing filter applied</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px]">
+              <span class="text-cyan-400">FILTERED</span>
+              <span class="text-zinc-500">0.02ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION / ACCESS SECTION -->
+    <section class="max-w-4xl mx-auto px-6 py-24 text-center">
+      <div class="relative rounded-3xl p-10 sm:p-14 liquid-glass-card border border-rose-500/30 overflow-hidden shadow-[0_0_80px_rgba(251,113,133,0.12)]">
+        <!-- Ambient Bloom Behind CTA -->
+        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-rose-500/20 blur-[100px] pointer-events-none rounded-full"></div>
+
+        <span class="inline-block px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-mono mb-6">
+          PRIVATE COGNITIVE NETWORK ACCESS
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-bold text-white tracking-tightest mb-6">
+          Synchronize your mind with the market.
+        </h2>
+        <p class="text-zinc-300 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+          Access is limited to sovereign funds, proprietary trading desks, and executive intelligence teams.
+        </p>
+
+        <!-- Access Input Bar (Liquid Glass Style) -->
+        <form class="max-w-md mx-auto flex flex-col sm:flex-row items-center gap-2 bg-zinc-950/80 p-1.5 rounded-2xl border border-white/10" onsubmit="event.preventDefault(); alert('Access request submitted for executive verification.');">
+          <input type="email" placeholder="institutional.email@domain.com" required class="w-full bg-transparent px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none font-sans" />
+          <button type="submit" class="liquid-btn-primary w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold text-white whitespace-nowrap tracking-tight">
+            Request Key
+          </button>
+        </form>
+        <p class="text-[11px] text-zinc-500 font-mono mt-3">Hardware enclave keys & biometrics validated at onboarding.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- APPLE-STYLE MINIMALIST FOOTER -->
+  <footer class="border-t border-white/5 py-12 relative z-10 text-xs text-zinc-500">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <!-- Left: Brand & Status -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center">
+            <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+          </div>
+          <span class="text-zinc-300 font-medium font-sans">SignalMind Neural Systems</span>
+        </div>
+        <span class="text-zinc-700">|</span>
+        <div class="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>ALL CLUSTERS OPERATIONAL</span>
+        </div>
+      </div>
+
+      <!-- Center: Links -->
+      <div class="flex items-center gap-6">
+        <a href="#" class="hover:text-zinc-300 transition-colors">Documentation</a>
+        <a href="#" class="hover:text-zinc-300 transition-colors">Enclave Security</a>
+        <a href="#" class="hover:text-zinc-300 transition-colors">Privacy Charter</a>
+        <a href="#" class="hover:text-zinc-300 transition-colors">Institutional SLA</a>
+      </div>
+
+      <!-- Right: Copyright -->
+      <div class="font-mono text-[11px] text-zinc-600">
+        © 2025 SignalMind Technologies Corp. Cupertino & Zurich.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lucide Icon activation script -->
+  <script>
+    lucide.createIcons();
+
+    // Subtle audio waveform animation effect
+    const bars = document.querySelectorAll('.waveform-bar');
+    if (bars.length > 0) {
+      setInterval(() => {
+        bars.forEach(bar => {
+          const randomHeight = Math.floor(Math.random() * 75) + 25;
+          bar.style.height = `${randomHeight}%`;
+        });
+      }, 350);
+    }
+  </script>
+</body>
+</html>
