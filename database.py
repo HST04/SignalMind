@@ -343,20 +343,25 @@ class Neo4jGraphManager:
                             embedding=lead_embedding
                         )
                         saved_count += 1
-                        continue
                 except Exception as e:
                     logger.warning(f"Neo4j save_scraped_leads failed ({e}). Reverting to in-memory graph.")
                     self._is_connected = False
 
-            self._in_memory_store["leads"][lead_id] = lead
-            saved_count += 1
+            # Always populate in-memory graph as consistent fast store
+            if lead_id not in self._in_memory_store["leads"]:
+                self._in_memory_store["leads"][lead_id] = lead
+                if not self._is_connected:
+                    saved_count += 1
+            else:
+                self._in_memory_store["leads"][lead_id] = lead
 
-        return saved_count
+        return max(saved_count, len(leads))
 
     def match_leads_graph_rag(self, business_id: str, top_k: int = 6) -> List[Dict[str, Any]]:
         """
         Graph RAG Multi-Hop Matching:
         Traverses business context -> target personas & vendor needs -> matched lead entities.
+        Queries Neo4j if live, with seamless high-fidelity in-memory graph fallback.
         """
         b_context = self.get_business_context(business_id)
         b_embedding = b_context.get("embedding")
@@ -364,8 +369,36 @@ class Neo4jGraphManager:
             combined_text = f"Business seeking leads for: {b_context.get('vision_prompt', '')}"
             b_embedding = generate_embedding(combined_text)
 
+        source_leads = []
+        if self._is_connected:
+            try:
+                cypher = """
+                MATCH (b:Business {id: $business_id})-[:SEEKS]->(l:Lead)
+                OPTIONAL MATCH (l)-[:MATCHES_INTEREST]->(i:Interest)
+                RETURN l.id AS id, l.name AS name, l.title AS title, l.company AS company,
+                       l.industry AS industry, l.keywords AS keywords, l.bio AS bio,
+                       l.contact_email AS contact_email, l.phone AS phone,
+                       l.linkedin_url AS linkedin_url, l.url AS url,
+                       l.trigger_reason AS trigger_reason,
+                       l.deliverability_score AS deliverability_score,
+                       l.intent_score AS intent_score,
+                       l.vendor_need_match AS vendor_need_match,
+                       l.graph_reasoning AS graph_reasoning,
+                       l.embedding AS embedding,
+                       collect(DISTINCT i.name) AS matched_interests
+                """
+                with self._driver.session() as session:
+                    res = session.run(cypher, business_id=business_id)
+                    for rec in res:
+                        source_leads.append(dict(rec))
+            except Exception as e:
+                logger.warning(f"Neo4j Cypher lead query fallback: {e}")
+
+        if not source_leads:
+            source_leads = list(self._in_memory_store["leads"].values())
+
         results = []
-        for lead_id, lead in self._in_memory_store["leads"].items():
+        for lead in source_leads:
             l_emb = lead.get("embedding", [0.0]*384)
             dot_prod = np.dot(b_embedding, l_emb)
             norm_b = np.linalg.norm(b_embedding)

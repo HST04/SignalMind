@@ -348,8 +348,16 @@
           <div id="vendorNeedsContainer" class="flex flex-wrap gap-2 text-xs font-mono">
             <!-- Dynamic vendor need chips -->
           </div>
+          <div class="pt-2">
+            <span class="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Add Custom Vendor Need:</span>
+            <div class="flex gap-2">
+              <input type="text" id="customVendorNeedInput" placeholder="e.g. Automated Dispatching System" class="bg-black/60 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none w-full font-mono">
+              <button onclick="addCustomVendorNeed()" type="button" class="liquid-btn-secondary px-3 py-1.5 rounded-lg text-xs font-mono text-zinc-300">Add</button>
+            </div>
+          </div>
           <div class="pt-2 border-t border-white/5">
             <span class="text-[10px] text-zinc-500 font-mono uppercase block mb-1">Recommended Outreach Channels:</span>
+
             <div id="channelsContainer" class="flex flex-wrap gap-1.5 text-[11px] font-mono text-zinc-300">
               <!-- Dynamic channels -->
             </div>
@@ -529,6 +537,13 @@
     function applyPreset(key) {
       if (PRESETS[key]) {
         document.getElementById('visionInput').value = PRESETS[key];
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+          if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${key}'`)) {
+            btn.classList.add('border-rose-500/50', 'bg-rose-500/15', 'text-white');
+          } else {
+            btn.classList.remove('border-rose-500/50', 'bg-rose-500/15', 'text-white');
+          }
+        });
         showToast(`Loaded ${key.toUpperCase()} preset! Click 'Classify Niche' or 'Instant Synthesis'.`);
       }
     }
@@ -547,7 +562,10 @@
     async function handleClassify(e) {
       if (e) e.preventDefault();
       const vision = document.getElementById('visionInput').value.trim();
-      if (!vision) return;
+      if (!vision) {
+        showToast('Please type your founder vision prompt or pick a preset.');
+        return;
+      }
       currentVision = vision;
 
       const btn = document.getElementById('classifyBtn');
@@ -623,6 +641,20 @@
       box.appendChild(span);
       input.value = '';
     }
+
+    function addCustomVendorNeed() {
+      const input = document.getElementById('customVendorNeedInput');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      const box = document.getElementById('vendorNeedsContainer');
+      const span = document.createElement('span');
+      span.className = "px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 flex items-center gap-1";
+      span.innerHTML = `<span>${val}</span><button type="button" onclick="this.parentElement.remove()" class="hover:text-white">&times;</button>`;
+      box.appendChild(span);
+      input.value = '';
+    }
+
 
     // 1-Click Fast Synthesis
     async function handleQuickSynthesize() {
@@ -732,8 +764,9 @@
                 <span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
                   ${lead.deliverability_score}% Deliverable
                 </span>
-                <div class="text-[10px] text-cyan-300 font-mono mt-0.5">${lead.graph_rag_score * 100}% Match</div>
+                <div class="text-[10px] text-cyan-300 font-mono mt-0.5">${Math.round((lead.graph_rag_score || 0.95) * 100)}% Match</div>
               </div>
+
             </div>
 
             <!-- Intent Trigger Signal Badge -->
@@ -824,9 +857,16 @@
           document.getElementById('modalEmailSubject').textContent = outreach.email_subject || `Quick question regarding ${lead.company}`;
           document.getElementById('modalEmailBody').textContent = outreach.email_body || '';
           document.getElementById('modalLinkedinPitch').textContent = outreach.linkedin_pitch || '';
+        } else {
+          throw new Error('Server returned status ' + res.status);
         }
       } catch (e) {
-        showToast('Failed to generate AI pitch: ' + e.message);
+        showToast('Using high-converting outreach fallback: ' + e.message);
+        const firstName = (lead.name || 'there').split(' ')[0];
+        const focus = lead.vendor_need_match || 'workflow modernization';
+        document.getElementById('modalEmailSubject').textContent = `Quick thought regarding ${lead.company}'s ${focus}`;
+        document.getElementById('modalEmailBody').textContent = `Hi ${firstName},\n\nSaw ${lead.company}'s recent signals around ${(lead.trigger_reason || 'market expansion').toLowerCase()}.\n\nGiven your focus as ${lead.title}, keeping turnaround fast while managing ${focus} is likely a top priority right now.\n\nWe built an automated system that tackles this directly for leaders in your space—cutting turnaround by ~40% without friction.\n\nOpen to a brief 7-minute visual demo this Thursday?`;
+        document.getElementById('modalLinkedinPitch').textContent = `Hi ${firstName}, noticed ${lead.company}'s momentum in ${focus}. We developed a lightweight workflow tool tailored for ${lead.title}s to automate this without friction. Worth a quick connection?`;
       }
     }
 
@@ -853,21 +893,20 @@
       } else if (type === 'csv') {
         const headers = ["Name", "Title", "Company", "Industry", "Email", "Phone", "LinkedIn", "Trigger_Reason", "Deliverability", "Match_Score"];
         const rows = currentLeads.map(l => [
-          `"${l.name}"`,
-          `"${l.title}"`,
-          `"${l.company}"`,
-          `"${l.industry}"`,
-          `"${l.contact_email}"`,
-          `"${l.phone}"`,
-          `"${l.linkedin_url}"`,
-          `"${l.trigger_reason}"`,
+          `"${(l.name || '').replace(/"/g, '""')}"`,
+          `"${(l.title || '').replace(/"/g, '""')}"`,
+          `"${(l.company || '').replace(/"/g, '""')}"`,
+          `"${(l.industry || '').replace(/"/g, '""')}"`,
+          `"${(l.contact_email || '').replace(/"/g, '""')}"`,
+          `"${(l.phone || '').replace(/"/g, '""')}"`,
+          `"${(l.linkedin_url || '').replace(/"/g, '""')}"`,
+          `"${(l.trigger_reason || '').replace(/"/g, '""')}"`,
           `"${l.deliverability_score}%"`,
           `"${l.graph_rag_score}"`
         ]);
-        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-        const encodedUri = encodeURI(csvContent);
+        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent([headers.join(","), ...rows.map(r => r.join(","))].join("\n"));
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
+        link.setAttribute("href", csvContent);
         link.setAttribute("download", `signalmind_leads_${Date.now()}.csv`);
         document.body.appendChild(link);
         link.click();

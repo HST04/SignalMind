@@ -46,10 +46,14 @@ def record_event(source: str, event_type: str, company: str, details: str, signa
     logger.info(f"Recorded Telemetry Event: [{source}] {company} - {event_type}")
     return event
 
+def _ensure_initial_seeds():
+    """Seed initial buffer once if completely empty."""
+    if not _telemetry_events:
+        for item in reversed(SAMPLE_SIGNALS):
+            record_event(item["source"], item["type"], item["company"], item["details"], item["signal_strength"])
+
 def get_recent_events(limit: int = 15) -> List[Dict[str, Any]]:
     """Retrieve recent telemetry events for frontend live ticker."""
-    if len(_telemetry_events) < 5:
-        # Seed initial buffer with rich events
-        for item in SAMPLE_SIGNALS:
-            record_event(item["source"], item["type"], item["company"], item["details"], item["signal_strength"])
+    _ensure_initial_seeds()
     return _telemetry_events[:limit]
+

@@ -39,13 +39,17 @@ SignalMind allows modern founders and growth teams to simply **describe the busi
 
 ---
 
-## Architecture: 2-Page Flow
+## Architecture: Multi-Page Flow
 
-- **`/` — Public Landing Page (`landing.html`):**  
-  Obsidian liquid-glass showcase with interactive vision sandbox, 6-step architecture breakdown, 200 taxonomy category explorer, and live telemetry preview.
-  
-- **`/app` — Interactive Lead Intelligence Dashboard (`app.html`):**  
-  Full working studio with vision input, intelligent presets (Roofing, Dental, CFO, Solar, Legal), interactive taxonomy dissection, real-time lead cards, AI outreach modal, and CSV/JSON export.
+- **`/` — Primary 3D Scrollytelling Showcase (`index.html`):**  
+  Obsidian liquid-glass experience with interactive vision context dock, Three.js parametric botanical visualization, 4 scroll story beats, 200 taxonomy category explorer, and live telemetry preview.
+
+- **`/app` — Interactive Lead Intelligence Studio (`app.html`):**  
+  Full working studio with vision input, intelligent presets (Roofing, Dental, CFO, Solar, Legal), interactive taxonomy & vendor need dissection, live lead cards, AI outreach modal, and CSV/JSON export.
+
+- **`/landing` — High-Performance Marketing Showcase (`landing.html`):**  
+  Streamlined liquid-glass landing page with instant sandbox classification and direct studio entry.
+
 
 ---
 
@@ -91,10 +95,20 @@ If you have **Azure for Students credits** and wish to connect a live distribute
 ---
 
 ## Automated Verification Suite
+ 
+Run the master end-to-end regression and verification suite:
+```bash
+.\venv\Scripts\python.exe verify_all.py
+```
 
 Run the full end-to-end userflow test suite:
 ```bash
 .\venv\Scripts\python.exe test_prototype_userflow.py
+```
+
+Run the comprehensive API & edge cases test:
+```bash
+.\venv\Scripts\python.exe comprehensive_manual_test.py
 ```
 
 Run the backend pipeline unit test:
@@ -106,6 +120,7 @@ Validate the 200-business taxonomy integrity:
 ```bash
 .\venv\Scripts\python.exe data/verify_data.py
 ```
+
 
 ---
 

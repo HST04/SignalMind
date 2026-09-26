@@ -115,6 +115,16 @@ def serve_app_dashboard():
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>SignalMind Lead Engine Loading...</h1>")
 
+@app.get("/landing", response_class=HTMLResponse, tags=["Web Pages"])
+def serve_secondary_landing():
+    """Serves the clean marketing landing page (landing.html)."""
+    landing_path = os.path.join(BASE_DIR, "landing.html")
+    if os.path.exists(landing_path):
+        with open(landing_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return serve_landing_page()
+
+
 
 # --- TAXONOMY & INTENT CLASSIFICATION API ---
 
@@ -162,7 +172,11 @@ def synthesize_leads_pipeline(payload: SynthesizeRequest):
     6. Execute multi-hop Graph traversal + vector cosine similarity to return top matched leads.
     """
     start_time = time.time()
+    if not payload.vision_prompt or not payload.vision_prompt.strip():
+        raise HTTPException(status_code=400, detail="Vision prompt cannot be empty.")
+
     logger.info(f"Executing Lead Synthesis for vision: '{payload.vision_prompt[:60]}...'")
+
 
     try:
         # Step 1: Resolve taxonomy if not provided
@@ -249,7 +263,10 @@ def generate_lead_outreach(payload: OutreachRequest):
     """
     1-Click AI Personalized Cold Email & LinkedIn InMail Generator for a specific lead.
     """
+    if not payload.lead:
+        raise HTTPException(status_code=400, detail="Lead data cannot be empty.")
     try:
+
         pitch = generate_outreach_pitch(
             lead=payload.lead,
             founder_vision=payload.founder_vision or "",

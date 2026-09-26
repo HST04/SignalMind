@@ -1543,8 +1543,13 @@ Open to a brief 7-minute visual demo this Thursday?</div>
       currentLeadData = { ...d };
 
       // Update preset buttons
-      document.querySelectorAll('.preset-chip').forEach(btn => btn.classList.remove('active'));
-      if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+      document.querySelectorAll('.preset-chip').forEach(btn => {
+        if ((evt && evt.currentTarget === btn) || (!evt && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${key}'`))) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
 
       // Update input fields
       document.getElementById('customPromptInput').value = d.promptText;
@@ -1606,6 +1611,11 @@ Open to a brief 7-minute visual demo this Thursday?</div>
       const statusText = document.getElementById('dockStatusText');
       const prompt = document.getElementById('customPromptInput').value.trim();
 
+      if (!prompt) {
+        statusText.textContent = "Please enter your founder vision prompt first.";
+        return;
+      }
+
       btn.textContent = "Synthesizing...";
       statusText.textContent = "Vectorizing & Classifying against 200 Taxonomies...";
 
@@ -1647,6 +1657,10 @@ Open to a brief 7-minute visual demo this Thursday?</div>
           }).then(r => r.json()).then(synthData => {
             if (synthData.top_matched_leads && synthData.top_matched_leads.length > 0) {
               const top = synthData.top_matched_leads[0];
+              const initials = top.name ? top.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'LD';
+              const resolvedVendorNeed = top.vendor_need_match || (data.aggregated_vendor_needs && data.aggregated_vendor_needs[0]) || 'Workflow Automation';
+              const resolvedTicket = primary.typical_ticket_size || '$40k Tier';
+
               currentLeadData = {
                 ...currentLeadData,
                 leadName: top.name,
@@ -1654,21 +1668,34 @@ Open to a brief 7-minute visual demo this Thursday?</div>
                 leadCompany: `${top.company} &bull; ${top.industry}`,
                 leadEmail: top.contact_email,
                 leadPhone: top.phone,
+                leadInitials: initials,
                 triggerReason: top.trigger_reason,
-                ticketSize: primary.typical_ticket_size || '$40k Tier'
+                vendorNeed: resolvedVendorNeed,
+                ticketSize: resolvedTicket,
+                promptText: prompt
               };
+
               document.getElementById('leadName').textContent = top.name;
               document.getElementById('leadRole').textContent = top.title;
               document.getElementById('leadCompany').innerHTML = `${top.company} &bull; ${top.industry}`;
               document.getElementById('leadEmail').textContent = top.contact_email;
               document.getElementById('leadPhone').textContent = top.phone;
+              document.getElementById('leadInitials').textContent = initials;
+              document.getElementById('leadTicketSize').textContent = resolvedTicket;
               document.getElementById('leadTriggerReason').textContent = top.trigger_reason;
+
+              // Update Graph Inspection Modal Text
+              document.getElementById('graphHop1').textContent = `User Vision: ${prompt.substring(0, 70)}...`;
+              document.getElementById('graphHop2').textContent = `Target Niche: ${primary.name || 'B2B'} [:REQUIRES_VENDOR] → ${resolvedVendorNeed}`;
+              document.getElementById('graphHop3').textContent = `Lead: ${top.name} (${top.title} at ${top.company})`;
             }
           }).catch(e => console.warn('Background lead synthesis note:', e));
 
           statusText.textContent = "Intent Classified! Gliding to results...";
           triggerPetalRipple();
           setTimeout(() => jumpToStage(4), 600);
+        } else {
+          statusText.textContent = "Classification issue. Please check prompt.";
         }
       } catch (err) {
         console.warn('API error, using local high-speed synthesis:', err);
@@ -1691,18 +1718,50 @@ Open to a brief 7-minute visual demo this Thursday?</div>
       if (el) el.classList.remove('active');
     }
 
-    function openOutreachModal() {
+    async function openOutreachModal() {
+      const companyClean = currentLeadData.leadCompany.split('&')[0].replace(/&bull;/g, '').trim();
       document.getElementById('modalTargetName').textContent = currentLeadData.leadName;
       document.getElementById('modalTargetRole').textContent = currentLeadData.leadRole;
-      document.getElementById('modalTargetCompany').textContent = currentLeadData.leadCompany.split('&')[0].trim();
-      document.getElementById('modalEmailSubject').textContent = `Quick thought regarding ${currentLeadData.leadCompany.split('&')[0].trim()}'s ${currentLeadData.vendorNeed}`;
-      
-      const firstName = currentLeadData.leadName.split(' ')[0].replace('Dr.', '').trim();
-      document.getElementById('modalEmailBody').textContent = `Hi ${firstName},\n\nSaw ${currentLeadData.leadCompany.split('&')[0].trim()}'s recent signals around ${currentLeadData.triggerReason.toLowerCase()}.\n\nGiven your focus as ${currentLeadData.leadRole}, keeping turnaround fast while managing ${currentLeadData.vendorNeed} is likely a top priority right now.\n\nWe built an automated system that tackles this directly for leaders in your space—cutting turnaround by ~40% without friction.\n\nOpen to a brief 7-minute visual demo this Thursday?`;
-      
-      document.getElementById('modalLinkedinPitch').textContent = `Hi ${firstName}, noticed ${currentLeadData.leadCompany.split('&')[0].trim()}'s momentum in ${currentLeadData.vendorNeed}. We developed a lightweight workflow tool tailored for ${currentLeadData.leadRole}s to automate this without friction. Worth a quick connection?`;
-
+      document.getElementById('modalTargetCompany').textContent = companyClean;
+      document.getElementById('modalEmailSubject').textContent = "Generating AI outreach subject...";
+      document.getElementById('modalEmailBody').textContent = "Synthesizing personalized AI outreach copy...";
+      document.getElementById('modalLinkedinPitch').textContent = "Formulating InMail connection hook...";
       openModal('modalOutreach');
+
+      try {
+        const res = await fetch('/api/leads/outreach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lead: {
+              name: currentLeadData.leadName,
+              title: currentLeadData.leadRole,
+              company: companyClean,
+              trigger_reason: currentLeadData.triggerReason,
+              vendor_need_match: currentLeadData.vendorNeed
+            },
+            founder_vision: document.getElementById('customPromptInput').value.trim() || currentLeadData.promptText,
+            vendor_need: currentLeadData.vendorNeed
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const pitch = data.outreach || {};
+          document.getElementById('modalEmailSubject').textContent = pitch.email_subject || `Quick thought regarding ${companyClean}'s ${currentLeadData.vendorNeed}`;
+          document.getElementById('modalEmailBody').textContent = pitch.email_body || '';
+          document.getElementById('modalLinkedinPitch').textContent = pitch.linkedin_pitch || '';
+          return;
+        }
+      } catch (err) {
+        console.warn('Live AI outreach note:', err);
+      }
+
+      // High-quality fallback
+      const firstName = currentLeadData.leadName.split(' ')[0].replace('Dr.', '').trim();
+      document.getElementById('modalEmailSubject').textContent = `Quick thought regarding ${companyClean}'s ${currentLeadData.vendorNeed}`;
+      document.getElementById('modalEmailBody').textContent = `Hi ${firstName},\n\nSaw ${companyClean}'s recent signals around ${currentLeadData.triggerReason.toLowerCase()}.\n\nGiven your focus as ${currentLeadData.leadRole}, keeping turnaround fast while managing ${currentLeadData.vendorNeed} is likely a top priority right now.\n\nWe built an automated system that tackles this directly for leaders in your space—cutting turnaround by ~40% without friction.\n\nOpen to a brief 7-minute visual demo this Thursday?`;
+      document.getElementById('modalLinkedinPitch').textContent = `Hi ${firstName}, noticed ${companyClean}'s momentum in ${currentLeadData.vendorNeed}. We developed a lightweight workflow tool tailored for ${currentLeadData.leadRole}s to automate this without friction. Worth a quick connection?`;
     }
 
     function openExportModal() {
@@ -1748,23 +1807,24 @@ Open to a brief 7-minute visual demo this Thursday?</div>
       } else if (type === 'csv') {
         const headers = ["Name", "Title", "Company", "Email", "Phone", "Trigger_Reason", "Ticket_Size"];
         const row = [
-          `"${d.leadName}"`,
-          `"${d.leadRole}"`,
-          `"${d.leadCompany.replace('&bull;', '-').trim()}"`,
-          `"${d.leadEmail}"`,
-          `"${d.leadPhone}"`,
-          `"${d.triggerReason}"`,
-          `"${d.ticketSize}"`
+          `"${(d.leadName || '').replace(/"/g, '""')}"`,
+          `"${(d.leadRole || '').replace(/"/g, '""')}"`,
+          `"${(d.leadCompany || '').replace(/&bull;/g, '-').replace(/"/g, '""').trim()}"`,
+          `"${(d.leadEmail || '').replace(/"/g, '""')}"`,
+          `"${(d.leadPhone || '').replace(/"/g, '""')}"`,
+          `"${(d.triggerReason || '').replace(/"/g, '""')}"`,
+          `"${(d.ticketSize || '').replace(/"/g, '""')}"`
         ];
-        const csv = "data:text/csv;charset=utf-8," + [headers.join(","), row.join(",")].join("\n");
+        const csv = "data:text/csv;charset=utf-8," + encodeURIComponent([headers.join(","), row.join(",")].join("\n"));
         const a = document.createElement('a');
-        a.href = encodeURI(csv);
+        a.href = csv;
         a.download = `signalmind_lead_${Date.now()}.csv`;
         a.click();
         a.remove();
       }
       closeModal('modalExport');
     }
+
 
     // =========================================================================
     // 2. THREE.JS ENGINE SETUP
